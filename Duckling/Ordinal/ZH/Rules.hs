@@ -33,7 +33,22 @@ ruleOrdinalDigits = Rule
       _ -> Nothing
   }
 
+ruleOrdinalDigits2 :: Rule
+ruleOrdinalDigits2 = Rule
+  { name = "ordinal (digits) 2"
+  , pattern =
+    [ regex "第"
+    , dimension Numeral
+    , regex "号"
+    ]
+  , prod = \tokens -> case tokens of
+      (_:Token Numeral NumeralData{TNumeral.value = x}:_) ->
+        Just . ordinal $ floor x
+      _ -> Nothing
+  }
+  
 rules :: [Rule]
 rules =
   [ ruleOrdinalDigits
+  , ruleOrdinalDigits2
   ]

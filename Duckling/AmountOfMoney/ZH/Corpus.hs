@@ -41,7 +41,7 @@ allExamples = concat
              , "两角五分"
              , "两毛五"
              ]
-  , examples (simple Dollar 7)
+  , examples (simple Yuan 7)
              [ "7块"
              , "七元"
              ]
@@ -49,17 +49,17 @@ allExamples = concat
              [ "3.14人民币"
              , "人民幣3.14"
              ]
-  , examples (under Dollar 1.2)
+  , examples (under Yuan 1.2)
              [ "1.2元以下"
              , "最多一块二角"
              , "最多一块二"
              ]
-  , examples (above Dollar 3.04)
+  , examples (above Yuan 3.04)
              [ "3.04块以上"
              , "至少三块四分"
              , "至少三块零四"
              ]
-  , examples (between Dollar (5.6, 5.78))
+  , examples (between Yuan (5.6, 5.78))
              [ "5.6到5.78元"
              , "五元六角-五元七毛八分"
              , "五块六到五块七毛八"

@@ -25,11 +25,14 @@ allExamples :: [Example]
 allExamples = concat
   [ examples (OrdinalData 7)
              [ "第七"
+             , "第七号"
              ]
   , examples (OrdinalData 11)
              [ "第十一"
+             , "第十一号"
              ]
   , examples (OrdinalData 91)
              [ "第九十一"
+             , "第九十一号"
              ]
   ]

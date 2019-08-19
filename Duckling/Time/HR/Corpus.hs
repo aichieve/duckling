@@ -662,8 +662,7 @@ allExamples = concat
              , "u podne"
              ]
   , examples (datetime (2013, 2, 13, 0, 0, 0) Hour)
-             [ "u 12 u noci"
-             , "u ponoc"
+             [ "u ponoc"
              ]
   , examples (datetime (2013, 3, 0, 0, 0, 0) Month)
              [ "ozujak"

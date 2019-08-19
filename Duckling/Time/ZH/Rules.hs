@@ -36,16 +36,58 @@ ruleTheDayAfterTomorrow = Rule
   , prod = \_ -> tt $ cycleNth TG.Day 2
   }
 
+ruleTheDayAfterTheDayAfterTomorrow :: Rule
+ruleTheDayAfterTheDayAfterTomorrow = Rule
+  { name = "the day after the day after tomorrow"
+  , pattern =
+    [ regex "大后天|大後天|大後日"
+    ]
+  , prod = \_ -> tt $ cycleNth TG.Day 3
+  }
+
 ruleRelativeMinutesTotillbeforeIntegerHourofday :: Rule
 ruleRelativeMinutesTotillbeforeIntegerHourofday = Rule
   { name = "relative minutes to|till|before <integer> (hour-of-day)"
   , pattern =
     [ Predicate isAnHourOfDay
-    , regex "(点|點)差"
+    , regex "(点|點|时|時)差"
     , Predicate $ isIntegerBetween 1 59
     ]
   , prod = \tokens -> case tokens of
       (Token Time td:_:token:_) -> do
+        n <- getIntValue token
+        Token Time <$> minutesBefore n td
+      _ -> Nothing
+  }
+
+ruleRelativeMinutesTotillbeforeIntegerHourofdayWithMinuteUnit :: Rule
+ruleRelativeMinutesTotillbeforeIntegerHourofdayWithMinuteUnit = Rule
+  { name = "relative minutes to|till|before <integer> (hour-of-day) with minute unit"
+  , pattern =
+    [ Predicate isAnHourOfDay
+    , regex "(点|點|时|時)差"
+    , Predicate $ isIntegerBetween 1 59
+    , regex "分"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td:_:token:_) -> do
+        n <- getIntValue token
+        Token Time <$> minutesBefore n td
+      _ -> Nothing
+  }
+
+ruleRelativeMinutesTotillbeforeIntegerHourofdayWithMinuteUnitReversed :: Rule
+ruleRelativeMinutesTotillbeforeIntegerHourofdayWithMinuteUnitReversed = Rule
+  { name = "relative minutes to|till|before <integer> (hour-of-day) with minute unit reversed"
+  , pattern =
+    [ regex "差"
+    , Predicate $ isIntegerBetween 1 59
+    , regex "分"
+    , Predicate isAnHourOfDay
+    , regex "(点|點|时|時)"
+    ]
+  , prod = \tokens -> case tokens of
+      (_:token:_:Token Time td:_) -> do
         n <- getIntValue token
         Token Time <$> minutesBefore n td
       _ -> Nothing
@@ -66,12 +108,28 @@ ruleRelativeMinutesTotillbeforeNoonmidnight = Rule
       _ -> Nothing
   }
 
+ruleRelativeMinutesTotillbeforeNoonmidnightWithMinuteUnit :: Rule
+ruleRelativeMinutesTotillbeforeNoonmidnightWithMinuteUnit = Rule
+  { name = "relative minutes to|till|before noon|midnight with minute unit"
+  , pattern =
+    [ Predicate isMidnightOrNoon
+    , regex "差"
+    , Predicate $ isIntegerBetween 1 59
+    , regex "分"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td:_:token:_) -> do
+        n <- getIntValue token
+        Token Time <$> minutesBefore n td
+      _ -> Nothing
+  }
+  
 ruleRelativeMinutesAfterpastIntegerHourofday :: Rule
 ruleRelativeMinutesAfterpastIntegerHourofday = Rule
   { name = "relative minutes after|past <integer> (hour-of-day)"
   , pattern =
     [ Predicate isAnHourOfDay
-    , regex "点|點"
+    , regex "点|點|时|時"
     , Predicate $ isIntegerBetween 1 59
     ]
   , prod = \tokens -> case tokens of
@@ -79,6 +137,25 @@ ruleRelativeMinutesAfterpastIntegerHourofday = Rule
        _:
        token:
        _) -> do
+        n <- getIntValue token
+        tt $ hourMinute True hours n
+      _ -> Nothing
+  }
+
+ruleRelativeMinutesAfterpastIntegerHourofdayWithMinuteUnit :: Rule
+ruleRelativeMinutesAfterpastIntegerHourofdayWithMinuteUnit = Rule
+  { name = "relative minutes after|past <integer> (hour-of-day) with minute unit"
+  , pattern =
+    [ Predicate isAnHourOfDay
+    , regex "点|點|时|時"
+    , Predicate $ isIntegerBetween 1 59
+    , regex "分"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time TimeData {TTime.form = Just (TTime.TimeOfDay (Just hours) _)}:
+        _:
+        token:
+        _) -> do
         n <- getIntValue token
         tt $ hourMinute True hours n
       _ -> Nothing
@@ -102,12 +179,30 @@ ruleRelativeMinutesAfterpastNoonmidnight = Rule
       _ -> Nothing
   }
 
+ruleRelativeMinutesAfterpastNoonmidnightWithMinuteUnit :: Rule
+ruleRelativeMinutesAfterpastNoonmidnightWithMinuteUnit = Rule
+  { name = "relative minutes after|past noon|midnight with minute unit"
+  , pattern =
+    [ Predicate isMidnightOrNoon
+    , regex "过|\x904e"
+    , Predicate $ isIntegerBetween 1 59
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time TimeData {TTime.form = Just (TTime.TimeOfDay (Just hours) _)}:
+        _:
+        token:
+        _) -> do
+        n <- getIntValue token
+        tt $ hourMinute True hours n
+      _ -> Nothing
+  }
+  
 ruleQuarterTotillbeforeIntegerHourofday :: Rule
 ruleQuarterTotillbeforeIntegerHourofday = Rule
   { name = "quarter to|till|before <integer> (hour-of-day)"
   , pattern =
     [ Predicate isAnHourOfDay
-    , regex "(点|點)差"
+    , regex "(点|點|时|時)差"
     , regex "一刻"
     ]
   , prod = \tokens -> case tokens of
@@ -131,12 +226,25 @@ ruleQuarterAfterpastIntegerHourofday = Rule
   { name = "quarter after|past <integer> (hour-of-day)"
   , pattern =
     [ Predicate isAnHourOfDay
-    , regex "点|點"
+    , regex "点|點|时|時"
     , regex "一刻"
     ]
   , prod = \tokens -> case tokens of
       (Token Time TimeData {TTime.form = Just (TTime.TimeOfDay (Just hours) _)}:
        _) -> tt $ hourMinute True hours 15
+      _ -> Nothing
+  }
+ruleThreeQuarterAfterpastIntegerHourofday :: Rule
+ruleThreeQuarterAfterpastIntegerHourofday = Rule
+  { name = "three quarter after|past <integer> (hour-of-day)"
+  , pattern =
+    [ Predicate isAnHourOfDay
+    , regex "点|點|时|時"
+    , regex "三刻"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time TimeData {TTime.form = Just (TTime.TimeOfDay (Just hours) _)}:
+       _) -> tt $ hourMinute True hours 45
       _ -> Nothing
   }
 ruleQuarterAfterpastNoonmidnight :: Rule
@@ -158,7 +266,7 @@ ruleHalfTotillbeforeIntegerHourofday = Rule
   { name = "half to|till|before <integer> (hour-of-day)"
   , pattern =
     [ Predicate isAnHourOfDay
-    , regex "(点|點)差"
+    , regex "(点|點|时|時)差"
     , regex "半"
     ]
   , prod = \tokens -> case tokens of
@@ -182,7 +290,7 @@ ruleHalfAfterpastIntegerHourofday = Rule
   { name = "half after|past <integer> (hour-of-day)"
   , pattern =
     [ Predicate isAnHourOfDay
-    , regex "点|點"
+    , regex "点|點|时|時"
     , regex "半"
     ]
   , prod = \tokens -> case tokens of
@@ -226,13 +334,15 @@ ruleThisDayofweek = Rule
     , Predicate isADayOfWeek
     ]
   , prod = \tokens -> case tokens of
-      (_:Token Time td:_) -> tt $ predNth 0 False td
+      (_:Token Time td:_) ->  do
+        tw <- Just $ cycleNth TG.Week 0
+        Token Time <$> intersect td tw
       _ -> Nothing
   }
 
 ruleNthTimeOfTime2 :: Rule
 ruleNthTimeOfTime2 = Rule
-  { name = "nth <time> of <time>"
+  { name = "nth <time> of <time> 2"
   , pattern =
     [ dimension Time
     , regex "的"
@@ -253,7 +363,7 @@ ruleLastTime = Rule
     , dimension Time
     ]
   , prod = \tokens -> case tokens of
-      (_:Token Time td:_) -> tt $ predNth (-1) False td
+      (_:Token Time td:_) -> tt $ predNth (- 1) False td
       _ -> Nothing
   }
 
@@ -326,19 +436,6 @@ ruleToday = Rule
   , prod = \_ -> tt today
   }
 
-ruleNextDayofweek :: Rule
-ruleNextDayofweek = Rule
-  { name = "next <day-of-week>"
-  , pattern =
-    [ regex "明|下(个|個)?"
-    , Predicate isADayOfWeek
-    ]
-  , prod = \tokens -> case tokens of
-      (_:Token Time td:_) ->
-        tt $ predNth 0 True td
-      _ -> Nothing
-  }
-
 ruleTheDayBeforeYesterday :: Rule
 ruleTheDayBeforeYesterday = Rule
   { name = "the day before yesterday"
@@ -346,6 +443,15 @@ ruleTheDayBeforeYesterday = Rule
     [ regex "前天|前日"
     ]
   , prod = \_ -> tt . cycleNth TG.Day $ - 2
+  }
+
+ruleTheDayBeforeTheDayBeforeYesterday :: Rule
+ruleTheDayBeforeTheDayBeforeYesterday = Rule
+  { name = "the day before the day before yesterday"
+  , pattern =
+    [ regex "大前天|大前日"
+    ]
+  , prod = \_ -> tt . cycleNth TG.Day $ - 3
   }
 
 ruleNextCycle :: Rule
@@ -404,7 +510,7 @@ ruleMidnight :: Rule
 ruleMidnight = Rule
   { name = "midnight"
   , pattern =
-    [ regex "午夜|凌晨|半夜"
+    [ regex "午夜|半夜"
     ]
   , prod = \_ -> tt $ hour False 0
   }
@@ -414,7 +520,7 @@ ruleInduringThePartofday = Rule
   { name = "in|during the <part-of-day>"
   , pattern =
     [ Predicate isAPartOfDay
-    , regex "点|點"
+    , regex "点|點|时|時"
     ]
   , prod = \tokens -> case tokens of
       (Token Time td:_) ->
@@ -579,6 +685,15 @@ ruleLastYear = Rule
   , prod = \_ -> tt . cycleNth TG.Year $ - 1
   }
 
+ruleLastLastYear :: Rule
+ruleLastLastYear = Rule
+  { name = "last last year"
+  , pattern =
+    [ regex "前年"
+    ]
+  , prod = \_ -> tt . cycleNth TG.Year $ - 2
+  }
+
 ruleDimTimePartofday :: Rule
 ruleDimTimePartofday = Rule
   { name = "<dim time> <part-of-day>"
@@ -600,8 +715,7 @@ ruleNextTime = Rule
     , dimension Time
     ]
   , prod = \tokens -> case tokens of
-      (_:Token Time td:_) ->
-        tt $ predNth 1 False td
+      (_:Token Time td:_) -> tt $ predNth 1 False td
       _ -> Nothing
   }
 
@@ -654,11 +768,24 @@ ruleMorning :: Rule
 ruleMorning = Rule
   { name = "morning"
   , pattern =
-    [ regex "早上|早晨|\x671d(\x982d)?早"
+    [ regex "早上|上午|早晨|\x671d(\x982d)?早"
     ]
   , prod = \_ ->
       let from = hour False 4
           to = hour False 12
+      in Token Time . mkLatent . partOfDay <$>
+           interval TTime.Open from to
+  }
+
+ruleEarlyMorning :: Rule
+ruleEarlyMorning = Rule
+  { name = "early morning"
+  , pattern =
+    [ regex "凌晨"
+    ]
+  , prod = \_ ->
+      let from = hour False 0
+          to = hour False 6
       in Token Time . mkLatent . partOfDay <$>
            interval TTime.Open from to
   }
@@ -672,16 +799,24 @@ ruleNextYear = Rule
   , prod = \_ -> tt $ cycleNth TG.Year 1
   }
 
+ruleNextNextYear :: Rule
+ruleNextNextYear = Rule
+  { name = "next next year"
+  , pattern =
+    [ regex "后年|後年"
+    ]
+  , prod = \_ -> tt $ cycleNth TG.Year 2
+  }
+
 ruleThisCycle :: Rule
 ruleThisCycle = Rule
   { name = "this <cycle>"
   , pattern =
-    [ regex "(这|這)(一)?|今個"
+    [ regex "今(个|個)?|(这|這)(一|个|個)?"
     , dimension TimeGrain
     ]
   , prod = \tokens -> case tokens of
-      (_:Token TimeGrain grain:_) ->
-        tt $ cycleNth grain 0
+      (_:Token TimeGrain grain:_) -> tt $ cycleNth grain 0
       _ -> Nothing
   }
 
@@ -689,12 +824,11 @@ ruleThisTime :: Rule
 ruleThisTime = Rule
   { name = "this <time>"
   , pattern =
-    [ regex "今(个|個)?|这(个)?|這(個)?"
+    [ regex "今(个|個)?|(这|這)(一|个|個)?"
     , dimension Time
     ]
   , prod = \tokens -> case tokens of
-      (_:Token Time td:_) ->
-        tt $ predNth 0 False td
+      (_:Token Time td:_) -> tt $ predNth 0 False td
       _ -> Nothing
   }
 
@@ -732,12 +866,26 @@ ruleTimeofdayAmpm = Rule
       _ -> Nothing
   }
 
+ruleDOM :: Rule
+ruleDOM = Rule
+  { name = "<day-of-month>"
+  , pattern =
+    [ Predicate isDOMInteger
+    , regex "号|號|日"
+    ]
+  , prod = \tokens -> case tokens of
+      (token:_) -> do
+        v <- getIntValue token
+        tt $ dayOfMonth v
+      _ -> Nothing
+  }
+
 ruleNamedmonthDayofmonth :: Rule
 ruleNamedmonthDayofmonth = Rule
   { name = "<named-month> <day-of-month>"
   , pattern =
     [ Predicate isAMonth
-    , dimension Numeral
+    , Predicate isDOMInteger
     , regex "号|號|日"
     ]
   , prod = \tokens -> case tokens of
@@ -820,7 +968,7 @@ ruleEveningnight :: Rule
 ruleEveningnight = Rule
   { name = "evening|night"
   , pattern =
-    [ regex "晚上|晚间"
+    [ regex "晚上|傍晚|晚间|夜间"
     ]
   , prod = \_ ->
       let from = hour False 18
@@ -858,7 +1006,7 @@ ruleTimeofdayOclock = Rule
   { name = "<time-of-day> o'clock"
   , pattern =
     [ Predicate isATimeOfDay
-    , regex "點|点|時"
+    , regex "點|点|时|時"
     ]
   , prod = \tokens -> case tokens of
       (Token Time td:_) ->
@@ -888,7 +1036,7 @@ ruleDaysOfWeek = mkRuleDaysOfWeek
   , ( "Thursday", "星期四|周四|礼拜四|禮拜四|週四" )
   , ( "Friday", "星期五|周五|礼拜五|禮拜五|週五" )
   , ( "Saturday", "星期六|周六|礼拜六|禮拜六|週六" )
-  , ( "Sunday", "星期日|星期天|礼拜天|周日|禮拜天|週日|禮拜日" )
+  , ( "Sunday", "星期日|星期天|礼拜天|礼拜日|周日|禮拜天|週日|禮拜日" )
   ]
 
 rulePeriodicHolidays :: [Rule]
@@ -969,30 +1117,40 @@ rules =
   , ruleLastCycle
   , ruleLastNCycle
   , ruleNCycleLast
+  , ruleDOM
   , ruleLastNight
   , ruleLastTime
   , ruleLastYear
+  , ruleLastLastYear
   , ruleMidnight
   , ruleMmdd
   , ruleMmddyyyy
   , ruleMonthNumericWithMonthSymbol
   , ruleMorning
+  , ruleEarlyMorning
   , ruleNamedmonthDayofmonth
   , ruleNextCycle
   , ruleNextNCycle
   , ruleNCycleNext
   , ruleNextTime
   , ruleNextYear
+  , ruleNextNextYear
   , ruleNoon
   , ruleNow
   , ruleNthTimeOfTime
   , ruleNthTimeOfTime2
   , rulePartofdayDimTime
   , ruleRelativeMinutesAfterpastIntegerHourofday
+  , ruleRelativeMinutesAfterpastIntegerHourofdayWithMinuteUnit
   , ruleRelativeMinutesAfterpastNoonmidnight
+  , ruleRelativeMinutesAfterpastNoonmidnightWithMinuteUnit
   , ruleRelativeMinutesTotillbeforeIntegerHourofday
+  , ruleRelativeMinutesTotillbeforeIntegerHourofdayWithMinuteUnit
+  , ruleRelativeMinutesTotillbeforeIntegerHourofdayWithMinuteUnitReversed
   , ruleRelativeMinutesTotillbeforeNoonmidnight
+  , ruleRelativeMinutesTotillbeforeNoonmidnightWithMinuteUnit
   , ruleQuarterAfterpastIntegerHourofday
+  , ruleThreeQuarterAfterpastIntegerHourofday
   , ruleQuarterAfterpastNoonmidnight
   , ruleQuarterTotillbeforeIntegerHourofday
   , ruleQuarterTotillbeforeNoonmidnight
@@ -1003,12 +1161,13 @@ rules =
   , ruleTheCycleAfterTime
   , ruleTheCycleBeforeTime
   , ruleTheDayAfterTomorrow
+  , ruleTheDayAfterTheDayAfterTomorrow
   , ruleTheDayBeforeYesterday
-  , ruleThisCycle
+  , ruleTheDayBeforeTheDayBeforeYesterday
   , ruleThisDayofweek
+  , ruleThisCycle
   , ruleThisTime
   , ruleThisYear
-  , ruleNextDayofweek
   , ruleTimeofdayAmpm
   , ruleTimeofdayOclock
   , ruleToday

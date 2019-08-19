@@ -111,6 +111,7 @@ instance Resolve TimeData where
         | notImmediate && isJust (timeIntersect ahead refTime) -> Just nextAhead
       ahead:_ -> Just ahead
     values <- Just . take 3 $ if List.null future then past else future
+    -- values <- Just $ (reverse $ take 3 past) ++ (take 3 future)
     Just $ case direction of
       Nothing -> (TimeValue (timeValue tzSeries value)
         (map (timeValue tzSeries) values) holiday, latent)
@@ -481,7 +482,7 @@ runHourPredicate ampm is12H n = series
       Time.UTCTime _ diffTime = start t
       Time.TimeOfDay h _ _ = Time.timeToTimeOfDay diffTime
       step :: Int
-      step = if is12H && n <= 12 && isNothing ampm then 12 else 24
+      step = if is12H && n < 12 && isNothing ampm then 12 else 24
       n' = case ampm of
             Just AM -> n `mod` 12
             Just PM -> (n `mod` 12) + 12

@@ -4,6 +4,7 @@
 -- This source code is licensed under the BSD-style license found in the
 -- LICENSE file in the root directory of this source tree.
 
+-- Slightly modified from the original version by huajun, to support batch input.
 
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -76,7 +77,7 @@ targetsHandler = do
 parseHandler :: HashMap Text TimeZoneSeries -> Snap ()
 parseHandler tzs = do
   modifyResponse $ setHeader "Content-Type" "application/json"
-  t <- getPostParam "text"
+  ts <- getPostParam "texts"
   l <- getPostParam "lang"
   ds <- getPostParam "dims"
   tz <- getPostParam "tz"
@@ -84,10 +85,10 @@ parseHandler tzs = do
   ref <- getPostParam "reftime"
   latent <- getPostParam "latent"
 
-  case t of
+  case ts of
     Nothing -> do
       modifyResponse $ setResponseStatus 422 "Bad Input"
-      writeBS "Need a 'text' parameter to parse"
+      writeBS "Need a 'texts' parameter to parse"
     Just tx -> do
       let timezone = parseTimeZone tz
       now <- liftIO $ currentReftime tzs timezone
@@ -100,8 +101,9 @@ parseHandler tzs = do
 
         dimParse = fromMaybe [] $ decode $ LBS.fromStrict $ fromMaybe "" ds
         dims = mapMaybe parseDimension dimParse
-
-        parsedResult = parse (Text.decodeUtf8 tx) context options dims
+        
+        texts = fromMaybe [] $ decode $ LBS.fromStrict tx
+        parsedResult = map (\x -> parse x context options dims) texts
 
       writeLBS $ encode parsedResult
   where

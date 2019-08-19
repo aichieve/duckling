@@ -30,6 +30,7 @@ data Currency
   | Dinar
   | Dirham
   | Dollar
+  | Yuan
   | Pound
   | Rial
   | Riyal
@@ -85,6 +86,7 @@ data Currency
 instance ToJSON Currency where
   toJSON Cent    = "cent"
   toJSON Dollar  = "$"
+  toJSON Yuan    = "\x00a5"
   toJSON Pound   = "\x00a3"
   toJSON Dinar   = "dinar"
   toJSON Dirham  = "dirham"

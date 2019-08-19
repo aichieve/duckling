@@ -73,11 +73,20 @@ ruleDime = Rule
       _ -> Nothing
   }
 
+ruleYuan :: Rule
+ruleYuan = Rule
+  { name = "yuan"
+  , pattern =
+    [ regex "元|圆|块"
+    ]
+  , prod = \_ -> Just . Token AmountOfMoney $ currencyOnly Yuan
+  }
+
 ruleDollar :: Rule
 ruleDollar = Rule
   { name = "dollar"
   , pattern =
-    [ regex "元|圆|块"
+    [ regex "美元|美圆|美刀"
     ]
   , prod = \_ -> Just . Token AmountOfMoney $ currencyOnly Dollar
   }
@@ -258,6 +267,7 @@ rules =
   , ruleCNY
   , ruleCNYPrefix
   , ruleDime
+  , ruleYuan
   , ruleDollar
   , ruleIntersect
   , ruleIntersect2

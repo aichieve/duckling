@@ -76,8 +76,6 @@ allExamples = concat
              ]
   , examples (simple JPY 10)
              [ "10 yen"
-             , "10¥"
-             , "10 ¥."
              ]
   , examples (between Dollar(10, 20))
              [ "antara 10 sampai 20 dolar"
