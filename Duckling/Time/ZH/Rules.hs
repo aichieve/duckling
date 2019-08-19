@@ -334,7 +334,7 @@ ruleThisDayofweek = Rule
     , Predicate isADayOfWeek
     ]
   , prod = \tokens -> case tokens of
-      (_:Token Time td:_) ->  do
+      (_:Token Time td:_) -> do
         tw <- Just $ cycleNth TG.Week 0
         Token Time <$> intersect td tw
       _ -> Nothing
@@ -768,7 +768,7 @@ ruleMorning :: Rule
 ruleMorning = Rule
   { name = "morning"
   , pattern =
-    [ regex "早上|上午|早晨|\x671d(\x982d)?早"
+    [ regex "早上|上午|早晨|早|\x671d(\x982d)?早"
     ]
   , prod = \_ ->
       let from = hour False 4
@@ -968,7 +968,7 @@ ruleEveningnight :: Rule
 ruleEveningnight = Rule
   { name = "evening|night"
   , pattern =
-    [ regex "晚上|傍晚|晚间|夜间"
+    [ regex "晚上|傍晚|晚间|夜间|晚"
     ]
   , prod = \_ ->
       let from = hour False 18
