@@ -27,11 +27,17 @@ import Duckling.Regex.Types
 import Duckling.Types
 import qualified Duckling.Numeral.Types as TNumeral
 
+digitZHRegex :: String
+digitZHRegex = "〇|零|一|壹|二|贰|两|兩|三|叁|四|肆|五|伍|六|陆|七|柒|八|捌|九|玖|十|拾"
+
+suffixZHRegex :: String
+suffixZHRegex = "K|M|G|十|拾|百|佰|千|仟|万|亿"
+
 ruleInteger :: Rule
 ruleInteger = Rule
   { name = "integer (0..10)"
   , pattern =
-    [ regex "(〇|零|一|二|两|兩|三|四|五|六|七|八|九|十)"
+    [ regex $ "(" ++ digitZHRegex ++ ")"
     ]
   , prod = \case
       (Token RegexMatch (GroupMatch (match:_)):_) ->
@@ -41,20 +47,40 @@ ruleInteger = Rule
 
 integerMap :: HashMap.HashMap Text Integer
 integerMap = HashMap.fromList
-  [ ( "〇", 0 )
+  [ ( "0", 0 )
+  , ( "〇", 0 )
   , ( "零", 0 )
+  , ( "1", 1 )
   , ( "一", 1 )
+  , ( "壹", 1 )
   , ( "兩", 2 )
   , ( "两", 2 )
+  , ( "2", 2 )
   , ( "二", 2 )
+  , ( "贰", 2 )
+  , ( "3", 3 )
   , ( "三", 3 )
+  , ( "叁", 3 )
+  , ( "4", 4 )
   , ( "四", 4 )
+  , ( "肆", 4 )
+  , ( "5", 5 )
   , ( "五", 5 )
+  , ( "伍", 5 )
+  , ( "6", 6 )
   , ( "六", 6 )
+  , ( "陆", 6 )
+  , ( "7", 7 )
   , ( "七", 7 )
+  , ( "柒", 7 )
+  , ( "8", 8 )
   , ( "八", 8 )
+  , ( "捌", 8 )
+  , ( "9", 9 )
   , ( "九", 9 )
+  , ( "玖", 9 )
   , ( "十", 10 )
+  , ( "拾", 10 )
   ]
 
 
@@ -111,8 +137,11 @@ numeralSuffixList =
   , ("M", double 1e6 >>= withGrain 6 >>= withMultipliable)
   , ("G", double 1e9 >>= withGrain 9 >>= withMultipliable)
   , ("十", double 1e1 >>= withGrain 1 >>= withMultipliable)
+  , ("拾", double 1e1 >>= withGrain 1 >>= withMultipliable)
   , ("百", double 1e2 >>= withGrain 2 >>= withMultipliable)
+  , ("佰", double 1e2 >>= withGrain 2 >>= withMultipliable)
   , ("千", double 1e3 >>= withGrain 3 >>= withMultipliable)
+  , ("仟", double 1e3 >>= withGrain 3 >>= withMultipliable)
   , ("万", double 1e4 >>= withGrain 4 >>= withMultipliable)
   , ("亿", double 1e8 >>= withGrain 8 >>= withMultipliable)
   ]
@@ -196,6 +225,26 @@ ruleNumeralsIntersectConsecutiveUnit = Rule
       | d == 1 = Just $ v1 + v2
       | otherwise = Nothing
 
+ruleNumeralsIntersectConsecutiveWithoutUnit :: Rule
+ruleNumeralsIntersectConsecutiveWithoutUnit = Rule
+  { name = "integer with consecutive unit without modifiers"
+  , pattern =
+    [ Predicate $ hasGrain
+    , regex $ "([0-9]|" ++ digitZHRegex ++ ")(?!([0-9]|" ++ digitZHRegex ++ "|" ++ suffixZHRegex ++ "))"
+    ]
+  , prod = \case
+      (Token Numeral NumeralData{TNumeral.value = v1, TNumeral.grain = Just g1}:
+       Token RegexMatch (GroupMatch (match2:_)):_) ->
+        sumConnectedNumbers v1 g1 (mapToInteger match2) >>= double
+      _ -> Nothing
+  }
+  where
+    mapToInteger :: Text -> Int
+    mapToInteger m = fromIntegral $ fromJust $ HashMap.lookup m integerMap
+
+    sumConnectedNumbers :: Double -> Int -> Int -> Maybe Double
+    sumConnectedNumbers v1 g1 v2 = Just $ v1 + 10.0 ** (fromIntegral $ g1 - 1) * (fromIntegral v2)
+
 rules :: [Rule]
 rules =
   [ ruleDecimalNumeral
@@ -205,6 +254,7 @@ rules =
   , ruleNumeral
   , ruleNumeralsIntersectConsecutiveUnit
   , ruleNumeralsIntersectNonconsectiveUnit
+  , ruleNumeralsIntersectConsecutiveWithoutUnit
   , ruleNumeralsPrefixWithNegativeOrMinus
   , ruleMultiply
   ]
