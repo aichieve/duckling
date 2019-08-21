@@ -77,14 +77,14 @@ allExamples = concat
              , "大後天"
              , "大後日"
              ]
-  , examples (datetime (2013, 2, 18, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 11, 0, 0, 0) Day)
              [ "星期一"
              , "礼拜一"
              , "周一"
              , "禮拜一"
              , "週一"
              ]
-  , examples (datetime (2013, 2, 19, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 12, 0, 0, 0) Day)
              [ "星期二"
              , "礼拜二"
              , "周二"
@@ -131,7 +131,7 @@ allExamples = concat
              [ "这周末"
              , "這週末"
              ]
-  , examples (datetimeInterval ((2013, 2, 18, 4, 0, 0), (2013, 2, 18, 12, 0, 0)) Hour)
+  , examples (datetimeInterval ((2013, 2, 11, 4, 0, 0), (2013, 2, 11, 12, 0, 0)) Hour)
              [ "周一早上"
              , "周一早晨"
              , "礼拜一早上"
@@ -536,10 +536,12 @@ allExamples = concat
              , "差15分9点"
              , "今天上午9点差15"
              ]
-  , examples (datetime (2013, 2, 12, 15, 0, 0) Hour)
+  , examples (datetime (2013, 2, 12, 3, 0, 0) Hour)
              [ "三点"
              , "三點"
-             , "3pm"
+             ]
+  , examples (datetime (2013, 2, 12, 15, 0, 0) Hour)
+             [ "3pm"
              , "下午三點"
              , "晏晝三點"
              , "下午三時"
@@ -607,7 +609,7 @@ allExamples = concat
              , "今晚8點"
              , "今晚八點"
              ]
-  , examples (datetimeHoliday (2014, 1, 1, 0, 0, 0) Day "元旦")
+  , examples (datetimeHoliday (2013, 1, 1, 0, 0, 0) Day "元旦")
              [ "元旦"
              , "元旦节"
              , "元旦節"

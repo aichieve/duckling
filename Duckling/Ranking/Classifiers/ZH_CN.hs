@@ -1285,22 +1285,18 @@ classifiers
                                likelihoods = HashMap.fromList [], n = 0}}),
        ("this <time>",
         Classifier{okData =
-                     ClassData{prior = -0.17327172127403667,
-                               unseen = -4.442651256490317,
+                     ClassData{prior = 0.0, unseen = -4.59511985013459,
                                likelihoods =
                                  HashMap.fromList
-                                   [("Wednesday", -2.3513752571634776),
-                                    ("evening|night", -2.8213788864092133),
-                                    ("Friday", -3.044522437723423), ("day", -1.3862943611198906),
-                                    ("<dim time> <part-of-day>", -3.044522437723423),
-                                    ("<part-of-day> <dim time>", -2.2335922215070942),
-                                    ("hour", -1.540445040947149), ("Tuesday", -2.032921526044943),
-                                    ("week-end", -3.332204510175204)],
-                               n = 37},
+                                   [("Wednesday", -2.505525936990736),
+                                    ("evening|night", -2.9755295662364714),
+                                    ("Monday", -2.505525936990736), ("Friday", -3.1986731175506815),
+                                    ("day", -1.252762968495368),
+                                    ("<dim time> <part-of-day>", -3.1986731175506815),
+                                    ("<part-of-day> <dim time>", -2.3877429013343523),
+                                    ("hour", -1.6945957207744071), ("Tuesday", -2.187072205872201),
+                                    ("week-end", -3.4863551900024623)],
+                               n = 44},
                    koData =
-                     ClassData{prior = -1.8382794848629478,
-                               unseen = -3.2188758248682006,
-                               likelihoods =
-                                 HashMap.fromList
-                                   [("Monday", -1.0986122886681098), ("day", -1.0986122886681098)],
-                               n = 7}})]
+                     ClassData{prior = -infinity, unseen = -2.3978952727983707,
+                               likelihoods = HashMap.fromList [], n = 0}})]

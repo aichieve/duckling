@@ -425,10 +425,7 @@ second n = TTime.timedata'
 
 dayOfWeek :: Int -> TimeData
 dayOfWeek n = form TTime.DayOfWeek $ TTime.timedata'
-  { TTime.timePred = timeDayOfWeek n
-  , TTime.timeGrain = TG.Day
-  , TTime.notImmediate = True
-  }
+  {TTime.timePred = timeDayOfWeek n, TTime.timeGrain = TG.Day}
 
 dayOfMonth :: Int -> TimeData
 dayOfMonth n = TTime.timedata'

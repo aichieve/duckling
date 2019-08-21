@@ -110,8 +110,7 @@ instance Resolve TimeData where
       ahead:nextAhead:_
         | notImmediate && isJust (timeIntersect ahead refTime) -> Just nextAhead
       ahead:_ -> Just ahead
-    values <- Just . take 3 $ if List.null future then past else future
-    -- values <- Just $ (reverse $ take 3 past) ++ (take 3 future)
+    values <- Just $ (take 3 past) ++ (take 3 future)
     Just $ case direction of
       Nothing -> (TimeValue (timeValue tzSeries value)
         (map (timeValue tzSeries) values) holiday, latent)
@@ -479,16 +478,14 @@ runHourPredicate ampm is12H n = series
     , iterate (\t -> timePlus t TG.Hour $ toInteger step) anchor
     )
     where
-      Time.UTCTime _ diffTime = start t
-      Time.TimeOfDay h _ _ = Time.timeToTimeOfDay diffTime
       step :: Int
       step = if is12H && n < 12 && isNothing ampm then 12 else 24
       n' = case ampm of
             Just AM -> n `mod` 12
             Just PM -> (n `mod` 12) + 12
             Nothing -> n
-      rounded = timeRound t TG.Hour
-      anchor = timePlus rounded TG.Hour . toInteger $ mod (n' - h) step
+      rounded = timeRound t TG.Day
+      anchor = timePlus rounded TG.Hour . toInteger $ mod n' step
 
 runAMPMPredicate :: AMPM -> SeriesPredicate
 runAMPMPredicate ampm = series
@@ -525,9 +522,9 @@ runDayOfTheWeekPredicate n = series
     where
       Time.UTCTime day _ = start t
       (_, _, dayOfWeek) = Time.toWeekDate day
-      daysUntilNextWeek = toInteger $ mod (n - dayOfWeek) 7
+      daysDiffInThisWeek = toInteger $ (n - dayOfWeek)
       anchor =
-        timePlus (timeRound t TG.Day) TG.Day daysUntilNextWeek
+        timePlus (timeRound t TG.Day) TG.Day daysDiffInThisWeek
 
 runDayOfTheMonthPredicate :: Int -> SeriesPredicate
 runDayOfTheMonthPredicate n = series
@@ -548,21 +545,15 @@ runDayOfTheMonthPredicate n = series
       addMonth i t = timePlus t TG.Month $ toInteger i
       roundMonth :: TimeObject -> TimeObject
       roundMonth t = timeRound t TG.Month
-      rounded = roundMonth t
-      Time.UTCTime day _ = start t
-      (_, _, dayOfMonth) = Time.toGregorian day
-      anchor = if dayOfMonth <= n then rounded else addMonth 1 rounded
+      anchor = roundMonth t
 
 runMonthPredicate :: Int -> SeriesPredicate
 runMonthPredicate n = series
   where
   series t _ = timeSequence TG.Year 1 anchor
     where
-      rounded =
+      anchor =
         timePlus (timeRound t TG.Year) TG.Month . toInteger $ n - 1
-      anchor = if timeStartsBeforeTheEndOf t rounded
-        then rounded
-        else timePlus rounded TG.Year 1
 
 runYearPredicate :: Int -> SeriesPredicate
 runYearPredicate n = series
@@ -649,8 +640,11 @@ runTimeIntervalsPredicate intervalType pred1 pred2 = timeSeqMap True f pred1
   where
     -- Pick the first interval *after* the given time segment
     f thisSegment ctx = case runPredicate pred2 thisSegment ctx of
-      (_, firstFuture:_) -> Just $
-        timeInterval intervalType thisSegment firstFuture
+      (_, firstFuture:secondFuture:_) -> Just $ 
+        if timeBefore thisSegment firstFuture then
+          timeInterval intervalType thisSegment firstFuture
+        else
+          timeInterval intervalType thisSegment secondFuture
       _ -> Nothing
 
 -- Limits how deep into lists of segments to look
