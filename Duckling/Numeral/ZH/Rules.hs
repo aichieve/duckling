@@ -234,16 +234,14 @@ ruleNumeralsIntersectConsecutiveWithoutUnit = Rule
     ]
   , prod = \case
       (Token Numeral NumeralData{TNumeral.value = v1, TNumeral.grain = Just g1}:
-       Token RegexMatch (GroupMatch (match2:_)):_) ->
-        sumConnectedNumbers v1 g1 (mapToInteger match2) >>= double
+       Token RegexMatch (GroupMatch (match2:_)):_) -> do
+        v2 <- HashMap.lookup match2 integerMap
+        sumConnectedNumbers v1 g1 v2 >>= double
       _ -> Nothing
   }
   where
-    mapToInteger :: Text -> Int
-    mapToInteger m = fromIntegral $ fromJust $ HashMap.lookup m integerMap
-
-    sumConnectedNumbers :: Double -> Int -> Int -> Maybe Double
-    sumConnectedNumbers v1 g1 v2 = Just $ v1 + 10.0 ** (fromIntegral $ g1 - 1) * (fromIntegral v2)
+    sumConnectedNumbers :: Double -> Int -> Integer -> Maybe Double
+    sumConnectedNumbers v1 g1 v2 = Just $ v1 + fromIntegral (10 ^ (g1 - 1) * v2)
 
 rules :: [Rule]
 rules =
