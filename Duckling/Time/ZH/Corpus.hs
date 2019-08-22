@@ -561,7 +561,7 @@ allExamples = concat
              ]
   , examples (datetime (2013, 2, 15, 12, 0, 0) Hour)
              [ "2月15号12点"
-             , "2月15日中午12点"
+             , "2月15日中午"
              ]
   , examples (datetime (2013, 2, 15, 15, 0, 0) Hour)
              [ "2月15号下午三点"

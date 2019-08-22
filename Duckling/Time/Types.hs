@@ -669,35 +669,7 @@ timeSeqMap dontReverse f g = series
     applyF series = mapMaybe (\x -> f x context) $ take safeMaxInterval series
 
     (firstPast, firstFuture) = runPredicate g nowTime context
-    (past1, future1) = (applyF firstPast, applyF firstFuture)
-
-    -- Separate what's before and after now from the past's series
-    (newFuture, stillPast) =
-      span (timeStartsBeforeTheEndOf nowTime) past1
-    -- A series that ends at the earliest time
-    oldPast = takeWhile
-      (timeStartsBeforeTheEndOf $ minTime context)
-      stillPast
-
-    -- Separate what's before and after now from the future's series
-    (newPast, stillFuture) =
-      break (timeStartsBeforeTheEndOf nowTime) future1
-    -- A series that ends at the furthest future time
-    oldFuture = takeWhile
-      (\x -> timeStartsBeforeTheEndOf x $ maxTime context)
-      stillFuture
-
-    -- Reverse the list if needed?
-    applyRev series = if dontReverse then series else reverse series
-    (sortedPast, sortedFuture) = (applyRev newPast, applyRev newFuture)
-
-    -- Past is the past from the future's series with the
-    -- past from the past's series tacked on
-    past = sortedPast ++ oldPast
-
-    -- Future is the future from the past's series with the
-    -- future from the future's series tacked on
-    future = sortedFuture ++ oldFuture
+    (past, future) = (applyF firstPast, applyF firstFuture)
 
 
 timeSequence

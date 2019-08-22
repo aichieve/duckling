@@ -443,11 +443,13 @@ classifiers
                                likelihoods = HashMap.fromList [], n = 0}}),
        ("season",
         Classifier{okData =
-                     ClassData{prior = 0.0, unseen = -1.791759469228055,
-                               likelihoods = HashMap.fromList [("", 0.0)], n = 4},
+                     ClassData{prior = -0.6931471805599453,
+                               unseen = -1.3862943611198906,
+                               likelihoods = HashMap.fromList [("", 0.0)], n = 2},
                    koData =
-                     ClassData{prior = -infinity, unseen = -0.6931471805599453,
-                               likelihoods = HashMap.fromList [], n = 0}}),
+                     ClassData{prior = -0.6931471805599453,
+                               unseen = -1.3862943611198906,
+                               likelihoods = HashMap.fromList [("", 0.0)], n = 2}}),
        ("year (grain)",
         Classifier{okData =
                      ClassData{prior = 0.0, unseen = -2.70805020110221,
@@ -1594,28 +1596,28 @@ classifiers
                                likelihoods = HashMap.fromList [], n = 0}}),
        ("this <time>",
         Classifier{okData =
-                     ClassData{prior = -1.2992829841302609,
-                               unseen = -3.6888794541139363,
+                     ClassData{prior = -1.4816045409242156, unseen = -3.58351893845611,
                                likelihoods =
                                  HashMap.fromList
-                                   [("week", -2.9704144655697013),
-                                    ("intersect", -2.5649493574615367),
-                                    ("season", -2.0541237336955462),
-                                    ("next <cycle>", -2.9704144655697013),
-                                    ("day", -2.0541237336955462), ("Oktober", -2.5649493574615367),
-                                    ("hour", -2.277267285009756), ("month", -2.0541237336955462),
-                                    ("week-end", -2.277267285009756)],
-                               n = 12},
+                                   [("week", -2.8622008809294686),
+                                    ("intersect", -2.456735772821304),
+                                    ("season", -2.456735772821304),
+                                    ("next <cycle>", -2.8622008809294686),
+                                    ("day", -2.456735772821304), ("Oktober", -2.456735772821304),
+                                    ("hour", -2.169053700369523), ("month", -1.9459101490553135),
+                                    ("week-end", -2.169053700369523)],
+                               n = 10},
                    koData =
-                     ClassData{prior = -0.3184537311185346, unseen = -4.382026634673881,
+                     ClassData{prior = -0.2578291093020998, unseen = -4.430816798843313,
                                likelihoods =
                                  HashMap.fromList
-                                   [("Tisdag", -3.676300671907076),
-                                    ("September", -2.760009940032921),
-                                    ("intersect", -1.8845412026790211), ("day", -3.676300671907076),
-                                    ("time-of-day (latent)", -3.270835563798912),
-                                    ("Oktober", -1.971552579668651), ("Mars", -3.270835563798912),
-                                    ("noon", -3.676300671907076), ("hour", -2.760009940032921),
-                                    ("month", -1.0372433422918175),
-                                    ("morning", -3.676300671907076)],
-                               n = 32}})]
+                                   [("Tisdag", -3.7256934272366524),
+                                    ("September", -2.8094026953624978),
+                                    ("intersect", -1.9339339580085977),
+                                    ("season", -3.3202283191284883), ("day", -3.0325462466767075),
+                                    ("time-of-day (latent)", -3.3202283191284883),
+                                    ("Oktober", -2.020945334998227), ("Mars", -3.3202283191284883),
+                                    ("noon", -3.7256934272366524), ("hour", -2.8094026953624978),
+                                    ("month", -1.086636097621394),
+                                    ("morning", -3.7256934272366524)],
+                               n = 34}})]

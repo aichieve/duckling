@@ -497,7 +497,7 @@ ruleAfternoon :: Rule
 ruleAfternoon = Rule
   { name = "afternoon"
   , pattern =
-    [ regex "下午|中午|\x664f\x665d"
+    [ regex "下午|\x664f\x665d"
     ]
   , prod = \_ ->
       let from = hour False 12

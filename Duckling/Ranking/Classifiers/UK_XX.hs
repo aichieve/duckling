@@ -557,11 +557,11 @@ classifiers
                                likelihoods = HashMap.fromList [], n = 0}}),
        ("\1079\1080\1084\1072",
         Classifier{okData =
-                     ClassData{prior = 0.0, unseen = -1.0986122886681098,
-                               likelihoods = HashMap.fromList [("", 0.0)], n = 1},
-                   koData =
                      ClassData{prior = -infinity, unseen = -0.6931471805599453,
-                               likelihoods = HashMap.fromList [], n = 0}}),
+                               likelihoods = HashMap.fromList [], n = 0},
+                   koData =
+                     ClassData{prior = 0.0, unseen = -1.0986122886681098,
+                               likelihoods = HashMap.fromList [("", 0.0)], n = 1}}),
        ("nth <time> of <time>",
         Classifier{okData =
                      ClassData{prior = -0.40546510810816444,
@@ -1354,15 +1354,20 @@ classifiers
                                likelihoods = HashMap.fromList [], n = 0}}),
        ("this <time>",
         Classifier{okData =
-                     ClassData{prior = 0.0, unseen = -2.70805020110221,
+                     ClassData{prior = -0.2876820724517809,
+                               unseen = -2.5649493574615367,
                                likelihoods =
                                  HashMap.fromList
-                                   [("\1074\1077\1089\1085\1072", -1.9459101490553135),
-                                    ("\1079\1080\1084\1072", -1.9459101490553135),
-                                    ("day", -1.252762968495368), ("hour", -1.9459101490553135),
-                                    ("week-end", -1.9459101490553135),
-                                    ("\1083\1110\1090\1086", -1.9459101490553135)],
-                               n = 4},
+                                   [("\1074\1077\1089\1085\1072", -1.791759469228055),
+                                    ("day", -1.3862943611198906), ("hour", -1.791759469228055),
+                                    ("week-end", -1.791759469228055),
+                                    ("\1083\1110\1090\1086", -1.791759469228055)],
+                               n = 3},
                    koData =
-                     ClassData{prior = -infinity, unseen = -1.9459101490553135,
-                               likelihoods = HashMap.fromList [], n = 0}})]
+                     ClassData{prior = -1.3862943611198906,
+                               unseen = -2.1972245773362196,
+                               likelihoods =
+                                 HashMap.fromList
+                                   [("\1079\1080\1084\1072", -1.3862943611198906),
+                                    ("day", -1.3862943611198906)],
+                               n = 1}})]
