@@ -26,6 +26,7 @@ import qualified Duckling.Time.ZH.TW.Corpus as TW
 tests :: TestTree
 tests = testGroup "ZH Tests"
   [ makeCorpusTest [This Time] defaultCorpus
+  , makeCorpusTest [This Time] anotherCorpus
   , localeTests
   ]
 

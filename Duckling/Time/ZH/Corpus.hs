@@ -10,6 +10,7 @@
 module Duckling.Time.ZH.Corpus
   ( corpus
   , defaultCorpus
+  , anotherCorpus
   ) where
 
 import Data.String
@@ -45,12 +46,20 @@ allExamples = concat
              [ "今天"
              , "今日"
              ]
+  , examples (datetime (2013, 2, 5, 0, 0, 0) Day)
+             [ "2/5"
+             , "二月五号"
+             , "这个月五号"
+             , "今年2月5号"
+             ]
   , examples (datetime (2013, 2, 11, 0, 0, 0) Day)
              [ "昨天"
              , "昨日"
              , "尋日"
              , "这个月11号"
              , "今年2月11日"
+             , "2月11日"
+             , "二月十一号"
              ]
   , examples (datetime (2013, 2, 13, 0, 0, 0) Day)
              [ "明天"
@@ -58,6 +67,8 @@ allExamples = concat
              , "聽日"
              , "这个月13号"
              , "今年2月13日"
+             , "2月13日"
+             , "二月十三号"
              ]
   , examples (datetime (2013, 2, 14, 0, 0, 0) Day)
              [ "后天"
@@ -176,6 +187,7 @@ allExamples = concat
              [ "三月一号"
              , "三月一日"
              , "三月一號"
+             , "3/1"
              ]
   , examples (datetime (2015, 3, 3, 0, 0, 0) Day)
              [ "2015年3月3号"
@@ -204,6 +216,20 @@ allExamples = concat
              , "2/15"
              , "15号"
              , "15日"
+             ]
+  , examples (datetime (2013, 1, 28, 0, 0, 0) Day)
+             [ "2013年1月28号"
+             , "2013年一月二十八号"
+             , "1月28号"
+             , "一月二十八号"
+             , "一月二十八日"
+             , "2013年1月28號"
+             , "2013年一月二十八號"
+             , "1月28號"
+             , "一月二十八號"
+             , "1/28"
+             , "上个月28号"
+             , "上月28日"
              ]
   , examples (datetime (1974, 10, 31, 0, 0, 0) Day)
              [ "10/31/1974"
@@ -671,3 +697,21 @@ allExamples = concat
              , "情人節晚上"
              ]
   ]
+
+anotherContext :: Context
+anotherContext = Context
+  { locale = makeLocale ZH Nothing
+  , referenceTime = refTime (2019, 6, 7, 23, 12, 34) 8
+  }
+
+anotherCorpus :: Corpus
+anotherCorpus = (anotherContext, testOptions, anotherExamples)
+  where
+    anotherExamples =
+      examples (datetime (2019, 6, 7, 8, 0, 0) Hour)
+               [ "上午8点"
+               , "今天上午8点"
+               , "早上8点"
+               , "6月7号早上8点"
+               , "星期五上午8点"
+               ]
