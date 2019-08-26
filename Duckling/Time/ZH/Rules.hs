@@ -424,7 +424,11 @@ ruleNoon = Rule
   , pattern =
     [ regex "中午"
     ]
-  , prod = \_ -> tt $ hour False 12
+  , prod = \_ ->
+      let from = hour False 11
+          to = hour False 13
+      in Token Time . mkLatent . partOfDay <$>
+           interval TTime.Open from to
   }
 
 ruleToday :: Rule

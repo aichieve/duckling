@@ -261,6 +261,12 @@ allExamples = concat
              , "星期五凌晨"
              , "这周五凌晨"
              ]
+  , examples (datetimeInterval ((2013, 2, 15, 11, 0, 0), (2013, 2, 15, 13, 0, 0)) Hour)
+             [ "2月15日中午"
+             , "15号中午"
+             , "礼拜五中午"
+             , "这周五中午"
+             ]
   , examples (datetimeInterval ((2013, 2, 15, 12, 0, 0), (2013, 2, 15, 19, 0, 0)) Hour)
              [ "二月十五号下午"
              , "15号下午"
@@ -587,7 +593,7 @@ allExamples = concat
              ]
   , examples (datetime (2013, 2, 15, 12, 0, 0) Hour)
              [ "2月15号12点"
-             , "2月15日中午"
+             , "2月15号中午12点"
              ]
   , examples (datetime (2013, 2, 15, 15, 0, 0) Hour)
              [ "2月15号下午三点"
