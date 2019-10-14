@@ -1,20 +1,32 @@
-FROM haskell:8
+FROM haskell:8 AS builder
 
-RUN git clone https://github.com/facebook/duckling.git
-
-RUN mkdir /log
+RUN apt-get update -qq && \
+  apt-get install -qq -y libpcre3 libpcre3-dev build-essential --fix-missing --no-install-recommends && \
+  mkdir duckling
 
 WORKDIR /duckling
 
-RUN apt-get update
-
-RUN apt-get install -qq -y libpcre3 libpcre3-dev build-essential --fix-missing --no-install-recommends
+COPY . .
 
 RUN stack setup
+
 # NOTE:`stack build` will use as many cores as are available to build
 # in parallel. However, this can cause OOM issues as the linking step
 # in GHC can be expensive. If the build fails, try specifying the
 # '-j1' flag to force the build to run sequentially.
-RUN stack build
+RUN stack build --copy-bins duckling:exe:duckling-example-exe
 
-ENTRYPOINT stack exec duckling-example-exe
+FROM debian:stretch-slim
+
+ENV LANG C.UTF-8
+
+RUN apt-get update -qq && \
+  apt-get install -qq -y libpcre3 libgmp10 --no-install-recommends && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+COPY --from=builder /root/.local/bin/duckling-example-exe /usr/local/bin/
+
+EXPOSE 10000
+
+CMD ["duckling-example-exe", "-p", "10000", "--no-access-log"]
