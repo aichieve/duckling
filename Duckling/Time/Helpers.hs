@@ -29,7 +29,7 @@ module Duckling.Time.Helpers
     -- Other
   , getIntValue, timeComputed, toTimeObjectM
   -- Rule constructors
-  , mkRuleInstants, mkRuleDaysOfWeek, mkRuleMonths, mkRuleMonthsWithLatent
+  , mkRuleInstants, mkRuleDaysOfWeek, mkRuleDaysOfWeekWithNotImmediate, mkRuleMonths, mkRuleMonthsWithLatent
   , mkRuleSeasons, mkRuleHolidays, mkRuleHolidays'
   ) where
 
@@ -425,7 +425,17 @@ second n = TTime.timedata'
 
 dayOfWeek :: Int -> TimeData
 dayOfWeek n = form TTime.DayOfWeek $ TTime.timedata'
-  {TTime.timePred = timeDayOfWeek n, TTime.timeGrain = TG.Day}
+  { TTime.timePred = timeDayOfWeek n
+  , TTime.timeGrain = TG.Day
+  , TTime.notImmediate = True
+  }
+
+dayOfWeekWithNotImmediate :: Int -> Bool -> TimeData
+dayOfWeekWithNotImmediate n notImmediate = form TTime.DayOfWeek $ TTime.timedata'
+  { TTime.timePred = timeDayOfWeek n
+  , TTime.timeGrain = TG.Day
+  , TTime.notImmediate = notImmediate
+  }  
 
 dayOfMonth :: Int -> TimeData
 dayOfMonth n = TTime.timedata'
@@ -716,6 +726,13 @@ mkRuleDaysOfWeek daysOfWeek = zipWith go daysOfWeek [1..7]
     go (name, ptn) i =
       mkSingleRegexRule name ptn . tt . mkOkForThisNext $ dayOfWeek i
 
+mkRuleDaysOfWeekWithNotImmediate :: [(Text, String, Bool)] -> [Rule]
+mkRuleDaysOfWeekWithNotImmediate daysOfWeek = zipWith go daysOfWeek [1..7]
+  where
+    go (name, ptn, notImmediate) i =
+      mkSingleRegexRule name ptn . tt . mkOkForThisNext $ dayOfWeekWithNotImmediate i notImmediate    
+      
+            
 mkRuleMonths :: [(Text, String)] -> [Rule]
 mkRuleMonths = mkRuleMonthsWithLatent . map (uncurry (,, False))
 

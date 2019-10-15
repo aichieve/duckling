@@ -37,6 +37,8 @@ import Duckling.Resolve
 import Duckling.TimeGrain.Types (Grain)
 import qualified Duckling.TimeGrain.Types as TG
 
+import qualified Duckling.Locale as L
+
 data TimeObject = TimeObject
   { start :: Time.UTCTime
   , grain :: Grain
@@ -104,13 +106,13 @@ instance NFData TimeData where
 instance Resolve TimeData where
   type ResolvedValue TimeData = TimeValue
   resolve _ Options {withLatent = False} TimeData {latent = True} = Nothing
-  resolve context _ TimeData {timePred, latent, notImmediate, direction, holiday} = do
+  resolve context@Context{locale = L.Locale lang _} _ TimeData {timePred, latent, notImmediate, direction, holiday} = do
     value <- case future of
       [] -> listToMaybe past
       ahead:nextAhead:_
         | notImmediate && isJust (timeIntersect ahead refTime) -> Just nextAhead
       ahead:_ -> Just ahead
-    values <- Just $ (take 3 past) ++ (take 3 future)
+    values <- if forceFutureFromThis then (Just $ (take 3 past) ++ (take 3 future)) else (Just . take 3 $ if List.null future then past else future)
     Just $ case direction of
       Nothing -> (TimeValue (timeValue tzSeries value)
         (map (timeValue tzSeries) values) holiday, latent)
@@ -123,11 +125,13 @@ instance Resolve TimeData where
         , grain = TG.Second
         , end = Nothing
         }
+      forceFutureFromThis = lang == L.ZH  
       tc = TimeContext
         { refTime = refTime
         , tzSeries = tzSeries
         , maxTime = timePlus refTime TG.Year 2000
         , minTime = timePlus refTime TG.Year $ - 2000
+        , forceFutureFromThis = forceFutureFromThis
         }
       (past, future) = runPredicate timePred refTime tc
 
@@ -149,6 +153,7 @@ data TimeContext = TimeContext
   , tzSeries :: Series.TimeZoneSeries
   , maxTime  :: TimeObject
   , minTime  :: TimeObject
+  , forceFutureFromThis :: Bool
   }
 
 data InstantValue = InstantValue
@@ -472,20 +477,27 @@ runMinutePredicate n = series
 runHourPredicate :: Maybe AMPM -> Bool -> Int -> SeriesPredicate
 runHourPredicate ampm is12H n = series
   where
-  series t _ =
+  series' forceFutureFromThis t _ =
     ( drop 1 $
-        iterate (\t -> timePlus t TG.Hour . toInteger $ - step) anchor
-    , iterate (\t -> timePlus t TG.Hour $ toInteger step) anchor
+        iterate (\t -> timePlus t TG.Hour . toInteger $ - step) finalAnchor
+    , iterate (\t -> timePlus t TG.Hour $ toInteger step) finalAnchor
     )
     where
+      Time.UTCTime _ diffTime = start t
+      Time.TimeOfDay h _ _ = Time.timeToTimeOfDay diffTime
       step :: Int
-      step = if is12H && n < 12 && isNothing ampm then 12 else 24
+      step = if is12H && n <= hr && isNothing ampm then 12 else 24
+        where hr = if forceFutureFromThis then 11 else 12
       n' = case ampm of
             Just AM -> n `mod` 12
             Just PM -> (n `mod` 12) + 12
             Nothing -> n
-      rounded = timeRound t TG.Day
-      anchor = timePlus rounded TG.Hour . toInteger $ mod n' step
+      rounded = timeRound t TG.Hour
+      anchor = timePlus rounded TG.Hour . toInteger $ mod (n' - h) step
+      rounded' = timeRound t TG.Day
+      anchor' = timePlus rounded' TG.Hour . toInteger $ mod n' step
+      finalAnchor = if forceFutureFromThis then anchor' else anchor
+  series t ctx@TimeContext{..} = series' forceFutureFromThis t ctx  
 
 runAMPMPredicate :: AMPM -> SeriesPredicate
 runAMPMPredicate ampm = series
@@ -518,21 +530,25 @@ runAMPMPredicate ampm = series
 runDayOfTheWeekPredicate :: Int -> SeriesPredicate
 runDayOfTheWeekPredicate n = series
   where
-  series t _ = timeSequence TG.Day 7 anchor
+  series' forceFutureFromThis t _ = timeSequence TG.Day 7 finalAnchor
     where
       Time.UTCTime day _ = start t
       (_, _, dayOfWeek) = Time.toWeekDate day
-      daysDiffInThisWeek = toInteger $ (n - dayOfWeek)
+      daysUntilNextWeek = toInteger $ mod (n - dayOfWeek) 7
       anchor =
-        timePlus (timeRound t TG.Day) TG.Day daysDiffInThisWeek
+        timePlus (timeRound t TG.Day) TG.Day daysUntilNextWeek
+      daysDiffInThisWeek = toInteger $ (n - dayOfWeek)
+      anchor' = timePlus (timeRound t TG.Day) TG.Day daysDiffInThisWeek
+      finalAnchor = if forceFutureFromThis then anchor' else anchor
+  series t ctx@TimeContext{..} = series' forceFutureFromThis t ctx     
 
 runDayOfTheMonthPredicate :: Int -> SeriesPredicate
 runDayOfTheMonthPredicate n = series
   where
-  series t _ =
+  series' forceFutureFromThis t _ =
     ( map addDays . filter enoughDays . iterate (addMonth $ - 1) $
-        addMonth (- 1) anchor
-    , map addDays . filter enoughDays $ iterate (addMonth 1) anchor
+        addMonth (- 1) finalAnchor
+    , map addDays . filter enoughDays $ iterate (addMonth 1) finalAnchor
     )
     where
       enoughDays :: TimeObject -> Bool
@@ -545,15 +561,27 @@ runDayOfTheMonthPredicate n = series
       addMonth i t = timePlus t TG.Month $ toInteger i
       roundMonth :: TimeObject -> TimeObject
       roundMonth t = timeRound t TG.Month
-      anchor = roundMonth t
+      rounded = roundMonth t
+      Time.UTCTime day _ = start t
+      (_, _, dayOfMonth) = Time.toGregorian day
+      anchor = if dayOfMonth <= n then rounded else addMonth 1 rounded
+      anchor' = rounded
+      finalAnchor = if forceFutureFromThis then anchor' else anchor
+  series t ctx@TimeContext{..} = series' forceFutureFromThis t ctx    
 
 runMonthPredicate :: Int -> SeriesPredicate
 runMonthPredicate n = series
   where
-  series t _ = timeSequence TG.Year 1 anchor
+  series' forceFutureFromThis t _ = timeSequence TG.Year 1 finalAnchor
     where
-      anchor =
+      rounded =
         timePlus (timeRound t TG.Year) TG.Month . toInteger $ n - 1
+      anchor = if timeStartsBeforeTheEndOf t rounded
+        then rounded
+        else timePlus rounded TG.Year 1
+      anchor' = rounded
+      finalAnchor = if forceFutureFromThis then anchor' else anchor
+  series t ctx@TimeContext{..} = series' forceFutureFromThis t ctx       
 
 runYearPredicate :: Int -> SeriesPredicate
 runYearPredicate n = series
@@ -636,16 +664,21 @@ runCompose pred1 pred2 = series
 runTimeIntervalsPredicate
   :: TimeIntervalType -> Predicate
   -> Predicate -> SeriesPredicate
-runTimeIntervalsPredicate intervalType pred1 pred2 = timeSeqMap True f pred1
+runTimeIntervalsPredicate intervalType pred1 pred2 = timeSeqMap True finalF pred1
   where
     -- Pick the first interval *after* the given time segment
     f thisSegment ctx = case runPredicate pred2 thisSegment ctx of
+      (_, firstFuture:_) -> Just $
+        timeInterval intervalType thisSegment firstFuture
+      _ -> Nothing
+    f' thisSegment ctx = case runPredicate pred2 thisSegment ctx of
       (_, firstFuture:secondFuture:_) -> Just $ 
         if timeBefore thisSegment firstFuture then
           timeInterval intervalType thisSegment firstFuture
         else
           timeInterval intervalType thisSegment secondFuture
-      _ -> Nothing
+      _ -> Nothing      
+    finalF thisSegment ctx@TimeContext{..} = if forceFutureFromThis then (f' thisSegment ctx) else (f thisSegment ctx)
 
 -- Limits how deep into lists of segments to look
 safeMaxInterval :: Int
@@ -661,7 +694,7 @@ timeSeqMap
   -> Predicate
      -- Series generator for values that come from `f`
   -> SeriesPredicate
-timeSeqMap dontReverse f g = series
+timeSeqMap dontReverse f g = finalSeries
   where
   series nowTime context = (past, future)
     where
@@ -669,7 +702,43 @@ timeSeqMap dontReverse f g = series
     applyF series = mapMaybe (\x -> f x context) $ take safeMaxInterval series
 
     (firstPast, firstFuture) = runPredicate g nowTime context
-    (past, future) = (applyF firstPast, applyF firstFuture)
+    (past1, future1) = (applyF firstPast, applyF firstFuture)
+
+    -- Separate what's before and after now from the past's series
+    (newFuture, stillPast) =
+      span (timeStartsBeforeTheEndOf nowTime) past1
+    -- A series that ends at the earliest time
+    oldPast = takeWhile
+      (timeStartsBeforeTheEndOf $ minTime context)
+      stillPast
+
+    -- Separate what's before and after now from the future's series
+    (newPast, stillFuture) =
+      break (timeStartsBeforeTheEndOf nowTime) future1
+    -- A series that ends at the furthest future time
+    oldFuture = takeWhile
+      (\x -> timeStartsBeforeTheEndOf x $ maxTime context)
+      stillFuture
+
+    -- Reverse the list if needed?
+    applyRev series = if dontReverse then series else reverse series
+    (sortedPast, sortedFuture) = (applyRev newPast, applyRev newFuture)
+
+    -- Past is the past from the future's series with the
+    -- past from the past's series tacked on
+    past = sortedPast ++ oldPast
+
+    -- Future is the future from the past's series with the
+    -- future from the future's series tacked on
+    future = sortedFuture ++ oldFuture
+  series' nowTime context = (past, future)
+    where
+    -- computes a single interval from `f` based on each interval in the series
+    applyF series = mapMaybe (\x -> f x context) $ take safeMaxInterval series
+
+    (firstPast, firstFuture) = runPredicate g nowTime context
+    (past, future) = (applyF firstPast, applyF firstFuture)  
+  finalSeries nowTime context@TimeContext{..} = if forceFutureFromThis then (series' nowTime context) else (series nowTime context) 
 
 
 timeSequence

@@ -1033,14 +1033,14 @@ ruleTimezone = Rule
   }
 
 ruleDaysOfWeek :: [Rule]
-ruleDaysOfWeek = mkRuleDaysOfWeek
-  [ ( "Monday", "星期一|周一|礼拜一|禮拜一|週一" )
-  , ( "Tuesday", "星期二|周二|礼拜二|禮拜二|週二" )
-  , ( "Wednesday", "星期三|周三|礼拜三|禮拜三|週三" )
-  , ( "Thursday", "星期四|周四|礼拜四|禮拜四|週四" )
-  , ( "Friday", "星期五|周五|礼拜五|禮拜五|週五" )
-  , ( "Saturday", "星期六|周六|礼拜六|禮拜六|週六" )
-  , ( "Sunday", "星期日|星期天|礼拜天|礼拜日|周日|禮拜天|週日|禮拜日" )
+ruleDaysOfWeek = mkRuleDaysOfWeekWithNotImmediate
+  [ ( "Monday", "星期一|周一|礼拜一|禮拜一|週一", False )
+  , ( "Tuesday", "星期二|周二|礼拜二|禮拜二|週二", False )
+  , ( "Wednesday", "星期三|周三|礼拜三|禮拜三|週三", False )
+  , ( "Thursday", "星期四|周四|礼拜四|禮拜四|週四", False )
+  , ( "Friday", "星期五|周五|礼拜五|禮拜五|週五", False )
+  , ( "Saturday", "星期六|周六|礼拜六|禮拜六|週六", False )
+  , ( "Sunday", "星期日|星期天|礼拜天|礼拜日|周日|禮拜天|週日|禮拜日", False )
   ]
 
 rulePeriodicHolidays :: [Rule]
