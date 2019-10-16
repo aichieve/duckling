@@ -11,6 +11,7 @@
 module Duckling.Resolve
   ( Context(..)
   , DucklingTime(..)
+  , TimeResolveStrategy(..)
   , Options(..)
   , Resolve(..)
   , fromUTC
@@ -36,8 +37,15 @@ data Context = Context
   }
   deriving (Eq, Show)
 
-newtype Options = Options
+data TimeResolveStrategy
+  = TO_THIS
+  | TO_FUTURE
+  -- | TO_PAST
+  deriving (Eq, Show, Read)  
+
+data Options = Options
   { withLatent :: Bool  -- When set, includes less certain parses, e.g. "7" as an hour of the day
+  , timeResolveStrategy :: TimeResolveStrategy
   }
   deriving (Eq, Show)
 

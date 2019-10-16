@@ -78,6 +78,7 @@ testContext = Context
 testOptions :: Options
 testOptions = Options
   { withLatent = False
+  , timeResolveStrategy = TO_FUTURE
   }
 
 withLocale :: (Context, Options, [a]) -> Locale -> [a]

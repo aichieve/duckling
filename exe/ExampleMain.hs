@@ -35,7 +35,7 @@ import Snap.Http.Server
 
 import Duckling.Core
 import Duckling.Data.TimeZone
-import Duckling.Resolve (DucklingTime)
+import Duckling.Resolve (DucklingTime, TimeResolveStrategy(..))
 
 createIfMissing :: FilePath -> IO ()
 createIfMissing f = do
@@ -84,6 +84,7 @@ parseHandler tzs = do
   loc <- getPostParam "locale"
   ref <- getPostParam "reftime"
   latent <- getPostParam "latent"
+  trs <- getPostParam "timeResolveStrategy"
 
   case ts of
     Nothing -> do
@@ -97,7 +98,7 @@ parseHandler tzs = do
           { referenceTime = maybe now (parseRefTime timezone) ref
           , locale = maybe (makeLocale (parseLang l) Nothing) parseLocale loc
           }
-        options = Options {withLatent = parseLatent latent}
+        options = Options {withLatent = parseLatent latent, timeResolveStrategy = parseTimeResolveStrategy trs}
 
         dimParse = fromMaybe [] $ decode $ LBS.fromStrict $ fromMaybe "" ds
         dims = mapMaybe parseDimension dimParse
@@ -111,6 +112,7 @@ parseHandler tzs = do
     defaultLocale = makeLocale defaultLang Nothing
     defaultTimeZone = "America/Los_Angeles"
     defaultLatent = False
+    defaultTimeResolveStrategy = TO_FUTURE
 
     parseDimension :: Text -> Maybe (Some Dimension)
     parseDimension x = fromName x <|> fromCustomName x
@@ -146,4 +148,8 @@ parseHandler tzs = do
     parseLatent :: Maybe ByteString -> Bool
     parseLatent x = fromMaybe defaultLatent
       (readMaybe (Text.unpack $ Text.toTitle $ Text.decodeUtf8 $ fromMaybe empty x)::Maybe Bool)
+
+    parseTimeResolveStrategy :: Maybe ByteString -> TimeResolveStrategy
+    parseTimeResolveStrategy s = fromMaybe defaultTimeResolveStrategy $ s >>=
+      readMaybe . Text.unpack . Text.toUpper . Text.decodeUtf8
 

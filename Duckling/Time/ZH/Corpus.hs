@@ -26,7 +26,7 @@ defaultCorpus :: Corpus
 defaultCorpus = corpus
 
 corpus :: Corpus
-corpus = (testContext {locale = makeLocale ZH Nothing}, testOptions, allExamples)
+corpus = (testContext {locale = makeLocale ZH Nothing}, testOptions {timeResolveStrategy = TO_THIS}, allExamples)
 
 allExamples :: [Example]
 allExamples = concat
@@ -715,7 +715,7 @@ anotherContext = Context
   }
 
 anotherCorpus :: Corpus
-anotherCorpus = (anotherContext, testOptions, anotherExamples)
+anotherCorpus = (anotherContext, testOptions {timeResolveStrategy = TO_THIS}, anotherExamples)
   where
     anotherExamples =
       examples (datetime (2019, 6, 7, 8, 0, 0) Hour)
