@@ -38,8 +38,6 @@ import Duckling.Resolve
 import Duckling.TimeGrain.Types (Grain)
 import qualified Duckling.TimeGrain.Types as TG
 
-import qualified Duckling.Locale as L
-
 data TimeObject = TimeObject
   { start :: Time.UTCTime
   , grain :: Grain
@@ -107,7 +105,7 @@ instance NFData TimeData where
 instance Resolve TimeData where
   type ResolvedValue TimeData = TimeValue
   resolve _ Options {withLatent = False} TimeData {latent = True} = Nothing
-  resolve context@Context{locale = L.Locale lang _} Options{..} TimeData {timePred, latent, notImmediate, direction, holiday} = do
+  resolve context Options{..} TimeData {timePred, latent, notImmediate, direction, holiday} = do
     value <- case future of
       [] -> listToMaybe past
       ahead:nextAhead:_
@@ -671,13 +669,17 @@ runTimeIntervalsPredicate intervalType pred1 pred2 = timeSeqMap True finalF pred
         timeInterval intervalType thisSegment firstFuture
       _ -> Nothing
     f' thisSegment ctx = case runPredicate pred2 thisSegment ctx of
-      (_, firstFuture:secondFuture:_) -> Just $ 
+      (_, firstFuture:secondFuture:_) -> Just $
         if timeBefore thisSegment firstFuture then
           timeInterval intervalType thisSegment firstFuture
         else
           timeInterval intervalType thisSegment secondFuture
-      _ -> Nothing      
-    finalF thisSegment ctx@TimeContext{..} = if timeResolveStrategy == TO_THIS then (f' thisSegment ctx) else (f thisSegment ctx)
+      _ -> Nothing
+    finalF thisSegment ctx@TimeContext{..} = case (pred1, pred2) of
+      (_, (SeriesPredicate (NoShow _))) -> (f thisSegment ctx)
+      ((SeriesPredicate (NoShow _)), _) -> (f thisSegment ctx)
+      ((SeriesPredicate (NoShow _)), (SeriesPredicate (NoShow _))) -> (f thisSegment ctx)
+      _ -> if timeResolveStrategy == TO_THIS then (f' thisSegment ctx) else (f thisSegment ctx)
 
 -- Limits how deep into lists of segments to look
 safeMaxInterval :: Int
@@ -737,8 +739,9 @@ timeSeqMap dontReverse f g = finalSeries
 
     (firstPast, firstFuture) = runPredicate g nowTime context
     (past, future) = (applyF firstPast, applyF firstFuture)  
-  finalSeries nowTime context@TimeContext{..} = if timeResolveStrategy == TO_THIS then (series' nowTime context) else (series nowTime context) 
-
+  finalSeries nowTime context@TimeContext{..} = case g of
+    (SeriesPredicate (NoShow _)) -> series nowTime context
+    _ -> if timeResolveStrategy == TO_THIS then (series' nowTime context) else (series nowTime context)
 
 timeSequence
   :: TG.Grain
