@@ -31,6 +31,7 @@ langRules (This CreditCardNumber) = []
 langRules (This Distance) = []
 langRules (This Duration) = []
 langRules (This Numeral) = Numeral.rules
+langRules (This EstimatedNumeral) = []
 langRules (This Email) = Email.rules
 langRules (This AmountOfMoney) = []
 langRules (This Ordinal) = []

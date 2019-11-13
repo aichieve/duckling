@@ -34,6 +34,7 @@ langRules (This Distance) = Distance.rules
 langRules (This Duration) = []
 langRules (This Email) = []
 langRules (This Numeral) = Numeral.rules
+langRules (This EstimatedNumeral) = []
 langRules (This Ordinal) = []
 langRules (This PhoneNumber) = []
 langRules (This Quantity) = []

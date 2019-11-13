@@ -473,6 +473,13 @@ library
                      , Duckling.Numeral.Rules
                      , Duckling.Numeral.Types
 
+                     -- EstimatedNumeral
+                     , Duckling.EstimatedNumeral.ZH.Corpus
+                     , Duckling.EstimatedNumeral.ZH.Rules
+                     , Duckling.EstimatedNumeral.Helpers
+                     , Duckling.EstimatedNumeral.Rules
+                     , Duckling.EstimatedNumeral.Types
+
                      -- Ordinal
                      , Duckling.Ordinal.AR.Corpus
                      , Duckling.Ordinal.AR.Rules
@@ -960,6 +967,10 @@ test-suite duckling-test
                      , Duckling.Numeral.VI.Tests
                      , Duckling.Numeral.ZH.Tests
                      , Duckling.Numeral.Tests
+
+                     -- EstimatedNumeral
+                     , Duckling.EstimatedNumeral.ZH.Tests
+                     , Duckling.EstimatedNumeral.Tests
 
                      -- Ordinal
                      , Duckling.Ordinal.AR.Tests

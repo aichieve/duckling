@@ -16,6 +16,7 @@ allDimensions =
   [ This Distance
   , This Duration
   , This Numeral
+  , This EstimatedNumeral
   , This Ordinal
   , This Quantity
   , This Temperature

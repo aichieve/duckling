@@ -47,6 +47,7 @@ import Duckling.Duration.Types (DurationData)
 import Duckling.Email.Types (EmailData)
 import Duckling.Locale
 import Duckling.Numeral.Types (NumeralData)
+import Duckling.EstimatedNumeral.Types (EstimatedNumeralData)
 import Duckling.Ordinal.Types (OrdinalData)
 import Duckling.PhoneNumber.Types (PhoneNumberData)
 import Duckling.Quantity.Types (QuantityData)
@@ -98,6 +99,7 @@ data Dimension a where
   Duration :: Dimension DurationData
   Email :: Dimension EmailData
   Numeral :: Dimension NumeralData
+  EstimatedNumeral :: Dimension EstimatedNumeralData
   Ordinal :: Dimension OrdinalData
   PhoneNumber :: Dimension PhoneNumberData
   Quantity :: Dimension QuantityData
@@ -117,6 +119,7 @@ instance Show (Dimension a) where
   show Email = "Email"
   show AmountOfMoney = "AmountOfMoney"
   show Numeral = "Numeral"
+  show EstimatedNumeral = "EstimatedNumeral"
   show Ordinal = "Ordinal"
   show PhoneNumber = "PhoneNumber"
   show Quantity = "Quantity"
@@ -144,6 +147,7 @@ instance Hashable (Dimension a) where
   hashWithSalt s Email               = hashWithSalt s (3::Int)
   hashWithSalt s AmountOfMoney       = hashWithSalt s (4::Int)
   hashWithSalt s Numeral             = hashWithSalt s (5::Int)
+  hashWithSalt s EstimatedNumeral    = hashWithSalt s (16::Int)
   hashWithSalt s Ordinal             = hashWithSalt s (6::Int)
   hashWithSalt s PhoneNumber         = hashWithSalt s (7::Int)
   hashWithSalt s Quantity            = hashWithSalt s (8::Int)
@@ -170,6 +174,8 @@ instance GEq Dimension where
   geq AmountOfMoney _ = Nothing
   geq Numeral Numeral = Just Refl
   geq Numeral _ = Nothing
+  geq EstimatedNumeral EstimatedNumeral = Just Refl
+  geq EstimatedNumeral _ = Nothing
   geq Ordinal Ordinal = Just Refl
   geq Ordinal _ = Nothing
   geq PhoneNumber PhoneNumber = Just Refl

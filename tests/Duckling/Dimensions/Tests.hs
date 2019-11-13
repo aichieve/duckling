@@ -19,6 +19,7 @@ import qualified Duckling.Distance.Tests as Distance
 import qualified Duckling.Duration.Tests as Duration
 import qualified Duckling.Email.Tests as Email
 import qualified Duckling.Numeral.Tests as Numeral
+import qualified Duckling.EstimatedNumeral.Tests as EstimatedNumeral
 import qualified Duckling.Ordinal.Tests as Ordinal
 import qualified Duckling.PhoneNumber.Tests as PhoneNumber
 import qualified Duckling.Quantity.Tests as Quantity
@@ -35,6 +36,7 @@ tests = testGroup "Dimensions Tests"
   , Duration.tests
   , Email.tests
   , Numeral.tests
+  , EstimatedNumeral.tests
   , Ordinal.tests
   , PhoneNumber.tests
   , Quantity.tests

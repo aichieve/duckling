@@ -20,6 +20,7 @@ import Duckling.Types
 import qualified Duckling.AmountOfMoney.ZH.Rules as AmountOfMoney
 import qualified Duckling.Distance.ZH.Rules as Distance
 import qualified Duckling.Numeral.ZH.Rules as Numeral
+import qualified Duckling.EstimatedNumeral.ZH.Rules as EstimatedNumeral
 import qualified Duckling.Ordinal.ZH.Rules as Ordinal
 import qualified Duckling.Quantity.ZH.Rules as Quantity
 import qualified Duckling.Temperature.ZH.Rules as Temperature
@@ -48,6 +49,7 @@ langRules (This Distance) = Distance.rules
 langRules (This Duration) = []
 langRules (This Email) = []
 langRules (This Numeral) = Numeral.rules
+langRules (This EstimatedNumeral) = EstimatedNumeral.rules
 langRules (This Ordinal) = Ordinal.rules
 langRules (This PhoneNumber) = []
 langRules (This Quantity) = Quantity.rules
