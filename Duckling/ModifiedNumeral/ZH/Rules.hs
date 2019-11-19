@@ -9,7 +9,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Duckling.EstimatedNumeral.ZH.Rules
+module Duckling.ModifiedNumeral.ZH.Rules
   ( rules
   ) where
 
@@ -23,12 +23,12 @@ import qualified Data.Text as Text
 import Duckling.Dimensions.Types
 import qualified Duckling.Numeral.Helpers as NHelpers
 import Duckling.Numeral.Types (NumeralData (..))
-import qualified Duckling.EstimatedNumeral.Helpers as EHelpers
-import Duckling.EstimatedNumeral.Types (EstimatedNumeralData (..))
+import qualified Duckling.ModifiedNumeral.Helpers as EHelpers
+import Duckling.ModifiedNumeral.Types (ModifiedNumeralData (..))
 import Duckling.Regex.Types
 import Duckling.Types
 import qualified Duckling.Numeral.Types as TNumeral
-import qualified Duckling.EstimatedNumeral.Types as ENumeral
+import qualified Duckling.ModifiedNumeral.Types as ENumeral
 
 ruleIntervalNumeral :: Rule
 ruleIntervalNumeral = Rule
@@ -43,7 +43,7 @@ ruleIntervalNumeral = Rule
        _:
        Token Numeral NumeralData{TNumeral.value = to}:
        _) | from < to ->
-         Just . Token EstimatedNumeral . EHelpers.withInterval (from, to) $ EHelpers.empty
+         Just . Token ModifiedNumeral . EHelpers.withInterval (from, to) $ EHelpers.empty
       _ -> Nothing
   }
 
@@ -58,12 +58,12 @@ ruleIntervalBound = Rule
       (Token RegexMatch (GroupMatch (match:_)):
        Token Numeral NumeralData{TNumeral.value = to}:
        _) -> case match of
-        "最多" -> Just . Token EstimatedNumeral . EHelpers.withMax to $ EHelpers.empty
-        "不到" -> Just . Token EstimatedNumeral . EHelpers.withMax to $ EHelpers.empty
-        "小于" -> Just . Token EstimatedNumeral . EHelpers.withMax to $ EHelpers.empty
-        "最少" -> Just . Token EstimatedNumeral . EHelpers.withMin to $ EHelpers.empty
-        "至少" -> Just . Token EstimatedNumeral . EHelpers.withMin to $ EHelpers.empty
-        "大于" -> Just . Token EstimatedNumeral . EHelpers.withMin to $ EHelpers.empty
+        "最多" -> Just . Token ModifiedNumeral . EHelpers.withMax to $ EHelpers.empty
+        "不到" -> Just . Token ModifiedNumeral . EHelpers.withMax to $ EHelpers.empty
+        "小于" -> Just . Token ModifiedNumeral . EHelpers.withMax to $ EHelpers.empty
+        "最少" -> Just . Token ModifiedNumeral . EHelpers.withMin to $ EHelpers.empty
+        "至少" -> Just . Token ModifiedNumeral . EHelpers.withMin to $ EHelpers.empty
+        "大于" -> Just . Token ModifiedNumeral . EHelpers.withMin to $ EHelpers.empty
         _ -> Nothing
       _ -> Nothing
   }
@@ -79,8 +79,8 @@ ruleIntervalBound2 = Rule
       (Token Numeral NumeralData{TNumeral.value = to}:
        Token RegexMatch (GroupMatch (match:_)):
        _) -> case match of
-        "以下" -> Just . Token EstimatedNumeral . EHelpers.withMax to $ EHelpers.empty
-        "以上" -> Just . Token EstimatedNumeral . EHelpers.withMin to $ EHelpers.empty
+        "以下" -> Just . Token ModifiedNumeral . EHelpers.withMax to $ EHelpers.empty
+        "以上" -> Just . Token ModifiedNumeral . EHelpers.withMin to $ EHelpers.empty
         _ -> Nothing
       _ -> Nothing
   }
@@ -107,7 +107,7 @@ ruleApproximate = Rule
   , prod = \case
         (Token RegexMatch (GroupMatch (match:_)):
          Token Numeral NumeralData{TNumeral.value = to}:
-         _) -> Just . Token EstimatedNumeral . EHelpers.withApproximate to $ EHelpers.empty
+         _) -> Just . Token ModifiedNumeral . EHelpers.withApproximate to $ EHelpers.empty
         _ -> Nothing
   }
 
@@ -121,7 +121,7 @@ ruleApproximate2 = Rule
   , prod = \case
         (Token Numeral NumeralData{TNumeral.value = to}:
          Token RegexMatch (GroupMatch (match:_)):
-         _) -> Just . Token EstimatedNumeral . EHelpers.withApproximate to $ EHelpers.empty
+         _) -> Just . Token ModifiedNumeral . EHelpers.withApproximate to $ EHelpers.empty
         _ -> Nothing
   }
 rules :: [Rule]

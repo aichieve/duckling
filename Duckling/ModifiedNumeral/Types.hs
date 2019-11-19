@@ -12,7 +12,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Duckling.EstimatedNumeral.Types where
+module Duckling.ModifiedNumeral.Types where
 
 import Control.DeepSeq
 import Data.Aeson
@@ -24,7 +24,7 @@ import Prelude
 
 import Duckling.Resolve
 
-data EstimatedNumeralData = EstimatedNumeralData
+data ModifiedNumeralData = ModifiedNumeralData
   { value        :: Maybe Double
   , grain        :: Maybe Int
   , minValue     :: Maybe Double
@@ -32,17 +32,17 @@ data EstimatedNumeralData = EstimatedNumeralData
   }
   deriving (Eq, Generic, Hashable, Ord, Show, NFData)
 
-instance Resolve EstimatedNumeralData where
-  type ResolvedValue EstimatedNumeralData = EstimatedNumeralValue
-  resolve _ _ EstimatedNumeralData {value = Just val} =
+instance Resolve ModifiedNumeralData where
+  type ResolvedValue ModifiedNumeralData = ModifiedNumeralValue
+  resolve _ _ ModifiedNumeralData {value = Just val} =
     Just (approximate val, False)
-  resolve _ _ EstimatedNumeralData {value = Nothing
+  resolve _ _ ModifiedNumeralData {value = Nothing
                          , minValue = Just from, maxValue = Just to} =
     Just (between (from, to), False)
-  resolve _ _ EstimatedNumeralData {value = Nothing
+  resolve _ _ ModifiedNumeralData {value = Nothing
                          , minValue = Just from, maxValue = Nothing} =
     Just (above from, False)
-  resolve _ _ EstimatedNumeralData {value = Nothing
+  resolve _ _ ModifiedNumeralData {value = Nothing
                          , minValue = Nothing, maxValue = Just to} =
     Just (under to, False)
   resolve _ _ _ = Nothing
@@ -58,14 +58,14 @@ instance ToJSON SingleValue where
   toJSON (SingleValue value) = object
     [ "value" .= value]
 
-data EstimatedNumeralValue
+data ModifiedNumeralValue
   = ApproximateValue SingleValue
   | IntervalValue (SingleValue, SingleValue)
   | OpenIntervalValue (SingleValue, IntervalDirection)
   deriving (Eq, Ord, Show)
 
 
-instance ToJSON EstimatedNumeralValue where
+instance ToJSON ModifiedNumeralValue where
   toJSON (ApproximateValue value) = object
       [ "type" .= ("approximate" :: Text)
       , "approximate" .= toJSON value
@@ -89,17 +89,17 @@ instance ToJSON EstimatedNumeralValue where
 single :: Double -> SingleValue
 single v = SingleValue {vValue = v}
 
-approximate :: Double -> EstimatedNumeralValue
+approximate :: Double -> ModifiedNumeralValue
 approximate v = ApproximateValue $ single v
 
-between :: (Double, Double) -> EstimatedNumeralValue
+between :: (Double, Double) -> ModifiedNumeralValue
 between (from, to) = IntervalValue (single from, single to)
 
-above :: Double -> EstimatedNumeralValue
+above :: Double -> ModifiedNumeralValue
 above = openInterval Above
 
-under :: Double -> EstimatedNumeralValue
+under :: Double -> ModifiedNumeralValue
 under = openInterval Under
 
-openInterval :: IntervalDirection -> Double -> EstimatedNumeralValue
+openInterval :: IntervalDirection -> Double -> ModifiedNumeralValue
 openInterval direction v = OpenIntervalValue (single v, direction)

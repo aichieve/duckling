@@ -5,18 +5,15 @@
 -- LICENSE file in the root directory of this source tree.
 
 
-module Duckling.EstimatedNumeral.ZH.Tests
-  ( tests ) where
+module Duckling.ModifiedNumeral.Tests (tests) where
 
-import Prelude
 import Data.String
+import Prelude
 import Test.Tasty
 
-import Duckling.Dimensions.Types
-import Duckling.EstimatedNumeral.ZH.Corpus
-import Duckling.Testing.Asserts
+import qualified Duckling.ModifiedNumeral.ZH.Tests as ZH
 
 tests :: TestTree
-tests = testGroup "ZH Tests"
-  [ makeCorpusTest [This EstimatedNumeral] corpus
+tests = testGroup "ModifiedNumeral Tests"
+  [ ZH.tests
   ]

@@ -7,14 +7,14 @@
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module Duckling.EstimatedNumeral.ZH.Corpus
+module Duckling.ModifiedNumeral.ZH.Corpus
   ( corpus ) where
 
 import Prelude
 import Data.String
 
 import Duckling.Locale
-import Duckling.EstimatedNumeral.Types
+import Duckling.ModifiedNumeral.Types
 import Duckling.Resolve
 import Duckling.Testing.Types
 

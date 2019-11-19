@@ -8,7 +8,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Duckling.EstimatedNumeral.Helpers
+module Duckling.ModifiedNumeral.Helpers
   ( empty
   , withInterval
   , withApproximate
@@ -17,33 +17,33 @@ module Duckling.EstimatedNumeral.Helpers
   ) where
 
 import Duckling.Dimensions.Types
-import Duckling.EstimatedNumeral.Types
+import Duckling.ModifiedNumeral.Types
 import Duckling.Types hiding (Entity(value))
 
 -- -----------------------------------------------------------------
 -- Production
-empty :: EstimatedNumeralData
-empty = EstimatedNumeralData
+empty :: ModifiedNumeralData
+empty = ModifiedNumeralData
   { value = Nothing
   , minValue = Nothing
   , maxValue = Nothing
   , grain = Nothing
   }
 
-withInterval :: (Double, Double) -> EstimatedNumeralData -> EstimatedNumeralData
+withInterval :: (Double, Double) -> ModifiedNumeralData -> ModifiedNumeralData
 withInterval (from, to) fd = fd
   {minValue = Just from
   , maxValue = Just to
   , value = Nothing
   , grain = Nothing}
 
-withApproximate :: Double -> EstimatedNumeralData -> EstimatedNumeralData
+withApproximate :: Double -> ModifiedNumeralData -> ModifiedNumeralData
 withApproximate x fd = fd {value = Just x}
 
-withMin :: Double -> EstimatedNumeralData -> EstimatedNumeralData
+withMin :: Double -> ModifiedNumeralData -> ModifiedNumeralData
 withMin x fd = fd {minValue = Just x}
 
-withMax :: Double -> EstimatedNumeralData -> EstimatedNumeralData
+withMax :: Double -> ModifiedNumeralData -> ModifiedNumeralData
 withMax x fd = fd {maxValue = Just x}
 
 

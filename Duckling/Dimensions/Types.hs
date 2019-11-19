@@ -34,7 +34,7 @@ toName Duration = "duration"
 toName Email = "email"
 toName AmountOfMoney = "amount-of-money"
 toName Numeral = "number"
-toName EstimatedNumeral = "estimated-number"
+toName ModifiedNumeral = "modified-number"
 toName Ordinal = "ordinal"
 toName PhoneNumber = "phone-number"
 toName Quantity = "quantity"
@@ -55,7 +55,7 @@ fromName name = HashMap.lookup name m
       , ("duration", This Duration)
       , ("email", This Email)
       , ("number", This Numeral)
-      , ("estimated-number", This EstimatedNumeral)
+      , ("modified-number", This ModifiedNumeral)
       , ("ordinal", This Ordinal)
       , ("phone-number", This PhoneNumber)
       , ("quantity", This Quantity)

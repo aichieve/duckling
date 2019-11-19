@@ -9,7 +9,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NoRebindableSyntax #-}
 
-module Duckling.EstimatedNumeral.Rules
+module Duckling.ModifiedNumeral.Rules
   ( rules
   ) where
 
