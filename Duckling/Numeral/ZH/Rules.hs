@@ -11,6 +11,10 @@
 
 module Duckling.Numeral.ZH.Rules
   ( rules
+  , digitZHRegex
+  , suffixZHRegex
+  , integerMap
+  , suffixUnitValueMap
   ) where
 
 import Data.Maybe
@@ -83,6 +87,20 @@ integerMap = HashMap.fromList
   , ( "拾", 10 )
   ]
 
+suffixUnitValueMap :: HashMap.HashMap Text Double
+suffixUnitValueMap = HashMap.fromList
+  [ ( "K", 1e3 )
+  , ( "M", 1e6 )
+  , ( "G", 1e9 )
+  , ( "十",1e1 )
+  , ( "拾",1e1 )
+  , ( "百",1e2 )
+  , ( "佰",1e2 )
+  , ( "千",1e3 )
+  , ( "仟",1e3 )
+  , ( "万",1e4 )
+  , ( "亿",1e8 )
+  ]
 
 ruleNumeralsPrefixWithNegativeOrMinus :: Rule
 ruleNumeralsPrefixWithNegativeOrMinus = Rule

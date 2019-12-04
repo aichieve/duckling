@@ -25,10 +25,12 @@ allExamples :: [Example]
 allExamples = concat
   [examples (between (20000, 30000))
              [ "2万到3万"
-    --             , "2到3万"
-    --             , "2,3万"
-    --             , "两三万"
-    --             , "贰叁万"
+             , "2到3万"
+             , "2,3万"
+             , "2，3万"
+             , "2、3万"
+             , "两三万"
+             , "贰叁万"
              ]
   , examples (above 50000)
              [ "5万以上"

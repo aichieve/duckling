@@ -29,21 +29,43 @@ import Duckling.Regex.Types
 import Duckling.Types
 import qualified Duckling.Numeral.Types as TNumeral
 import qualified Duckling.ModifiedNumeral.Types as ENumeral
+import qualified Duckling.Numeral.ZH.Rules as NRules
 
 ruleIntervalNumeral :: Rule
 ruleIntervalNumeral = Rule
   { name = "<number> - <number>"
   , pattern =
     [ Predicate NHelpers.isPositive
-    , regex "-|~|到"
+    , regex "-|~|,|，|、|到"
     , Predicate NHelpers.isPositive
     ]
   , prod = \case
-      (Token Numeral NumeralData{TNumeral.value = from}:
+      (Token Numeral NumeralData{TNumeral.value = from, TNumeral.grain = gr1}:
        _:
-       Token Numeral NumeralData{TNumeral.value = to}:
+       Token Numeral NumeralData{TNumeral.value = to, TNumeral.grain = gr2}:
        _) | from < to ->
-         Just . Token ModifiedNumeral . EHelpers.withInterval (from, to) $ EHelpers.empty
+         case (gr1, gr2) of
+           (Nothing, Just g2) -> Just . Token ModifiedNumeral . EHelpers.withInterval ((10 ** fromIntegral g2) * from, to) $ EHelpers.empty
+           _ -> Just . Token ModifiedNumeral . EHelpers.withInterval (from, to) $ EHelpers.empty
+      _ -> Nothing
+  }
+
+ruleIntervalNumeral2 :: Rule
+ruleIntervalNumeral2 = Rule
+  { name = "<number><number><CN unit>"
+  , pattern =
+    [ regex $ "(" ++ NRules.digitZHRegex ++ ")(" ++ NRules.digitZHRegex ++ ")(" ++ NRules.suffixZHRegex ++ ")"
+    ]
+  , prod = \case
+      (Token RegexMatch (GroupMatch (dFrom:dTo:unit:_)):_) -> do
+        vFrom <- HashMap.lookup dFrom NRules.integerMap
+        vTo <- HashMap.lookup dTo NRules.integerMap
+        vUnit <- HashMap.lookup unit NRules.suffixUnitValueMap
+        let from = vUnit * fromIntegral vFrom
+            to = vUnit * fromIntegral vTo
+        case from < to of
+          True -> Just . Token ModifiedNumeral . EHelpers.withInterval (from, to) $ EHelpers.empty
+          False -> Nothing
       _ -> Nothing
   }
 
@@ -127,6 +149,7 @@ ruleApproximate2 = Rule
 rules :: [Rule]
 rules =
   [ ruleIntervalNumeral
+  , ruleIntervalNumeral2
   , ruleIntervalBound
   , ruleIntervalBound2
   , rulePrecision
