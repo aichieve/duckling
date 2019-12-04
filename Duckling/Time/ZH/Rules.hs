@@ -317,7 +317,7 @@ ruleHhmmTimeofday :: Rule
 ruleHhmmTimeofday = Rule
   { name = "hh:mm (time-of-day)"
   , pattern =
-    [ regex "((?:[01]?\\d)|(?:2[0-3]))[:：]([0-5]\\d)"
+    [ regex "((?:[01]?\\d)|(?:2[0-3]))[:：︓﹕]([0-5]\\d)"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (hh:mm:_)):_) -> do
@@ -728,7 +728,7 @@ ruleYyyymmdd :: Rule
 ruleYyyymmdd = Rule
   { name = "yyyy-mm-dd"
   , pattern =
-    [ regex "(\\d{2,4})[-－](0?[1-9]|1[0-2])[-－](3[01]|[12]\\d|0?[1-9])"
+    [ regex "(\\d{2,4})[\\p{Pd}−](0?[1-9]|1[0-2])[\\p{Pd}−](3[01]|[12]\\d|0?[1-9])"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (yy:mm:dd:_)):_) -> do
