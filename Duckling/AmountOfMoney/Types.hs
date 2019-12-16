@@ -140,11 +140,13 @@ instance ToJSON Currency where
   toJSON ZAR     = "ZAR"
 
 data AmountOfMoneyData = AmountOfMoneyData
-  { value    :: Maybe Double
-  , currency :: Currency
-  , minValue :: Maybe Double
-  , maxValue :: Maybe Double
-  , latent   :: Bool
+  { value     :: Maybe Double
+  , currency  :: Currency
+  , minValue  :: Maybe Double
+  , maxValue  :: Maybe Double
+  , latent    :: Bool
+  , estimated :: Bool
+  , grain     :: Maybe Int
   }
   deriving (Eq, Generic, Hashable, Show, Ord, NFData)
 
@@ -155,6 +157,13 @@ instance Resolve AmountOfMoneyData where
   resolve _ _ AmountOfMoneyData {value = Nothing, minValue = Nothing
                               , maxValue = Nothing} =
     Nothing
+  resolve _ _ AmountOfMoneyData {value = Just value
+                               , minValue = Nothing
+                               , maxValue = Nothing
+                               , estimated = True
+                               , currency
+                               , latent} =
+    Just (approximate currency value, latent)
   resolve _ _ AmountOfMoneyData {value = Just value, currency, latent} =
     Just (simple currency value, latent)
   resolve _ _ AmountOfMoneyData {value = Nothing, currency = c
@@ -177,6 +186,8 @@ amountOfMoneyData' = AmountOfMoneyData
   , minValue = Nothing
   , maxValue = Nothing
   , latent = False
+  , estimated = False
+  , grain = Nothing
   }
 
 data IntervalDirection = Above | Under
@@ -196,6 +207,7 @@ instance ToJSON SingleValue where
 
 data AmountOfMoneyValue
   = SimpleValue SingleValue
+  | ApproximateValue SingleValue
   | IntervalValue (SingleValue, SingleValue)
   | OpenIntervalValue (SingleValue, IntervalDirection)
   deriving (Show, Eq)
@@ -216,6 +228,10 @@ instance ToJSON AmountOfMoneyValue where
   toJSON (OpenIntervalValue (to, Under)) = object
     [ "type" .= ("interval" :: Text)
     , "to" .= toJSON to
+    ]
+  toJSON (ApproximateValue value) = object
+    [ "type" .= ("approximate" :: Text)
+    , "approximate" .= toJSON value
     ]
 
 -- -----------------------------------------------------------------
@@ -238,3 +254,6 @@ openInterval direction c v = OpenIntervalValue (single c v, direction)
 
 single :: Currency -> Double -> SingleValue
 single c v = SingleValue {vCurrency = c, vValue = v}
+
+approximate :: Currency -> Double -> AmountOfMoneyValue
+approximate c v = ApproximateValue $ single c v

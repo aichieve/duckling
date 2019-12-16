@@ -24,6 +24,8 @@ module Duckling.AmountOfMoney.Helpers
   , withMax
   , withMin
   , withValue
+  , withApproximate
+  , withGrain
   , mkLatent
   , dollarCoins
   )
@@ -117,6 +119,9 @@ valueOnly x = amountOfMoneyData'{value = Just x}
 withValue :: Double -> AmountOfMoneyData -> AmountOfMoneyData
 withValue x fd = fd {value = Just x}
 
+withGrain :: Maybe Int -> AmountOfMoneyData -> AmountOfMoneyData
+withGrain g fd = fd {grain = g}
+
 withCents :: Double -> AmountOfMoneyData -> AmountOfMoneyData
 withCents x fd@AmountOfMoneyData {value = Just value} = fd
   {value = Just $ value + x / 100}
@@ -135,3 +140,6 @@ withMax x fd = fd {maxValue = Just x}
 
 mkLatent :: AmountOfMoneyData -> AmountOfMoneyData
 mkLatent fd = fd {latent = True}
+
+withApproximate :: Double -> AmountOfMoneyData -> AmountOfMoneyData
+withApproximate x fd = fd {value = Just x, estimated = True}

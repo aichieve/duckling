@@ -146,6 +146,7 @@ ruleApproximate2 = Rule
          _) -> Just . Token ModifiedNumeral . EHelpers.withApproximate to $ EHelpers.empty
         _ -> Nothing
   }
+
 rules :: [Rule]
 rules =
   [ ruleIntervalNumeral
