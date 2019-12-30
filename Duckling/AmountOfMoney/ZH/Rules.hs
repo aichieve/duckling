@@ -106,18 +106,6 @@ rulePrecision = Rule
       _ -> Nothing
   }
 
---rulePrecision2 :: Rule
---rulePrecision2 = Rule
---  { name = "about <amount-of-money>"
---  , pattern =
---    [ Predicate isMoneyWithValue
---    , regex "左右"
---    ]
---  , prod = \case
---      (token:_) -> Just token
---      _ -> Nothing
---  }
-
 ruleIntersectDimesAndCents :: Rule
 ruleIntersectDimesAndCents = Rule
   { name = "intersect (X dimes and X cents)"
