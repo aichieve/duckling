@@ -23,8 +23,10 @@ import Duckling.Regex.Types
 import Duckling.Time.Computed
 import Duckling.Time.Helpers
 import Duckling.Time.Types (TimeData (..))
+import Duckling.Duration.Types (DurationData (..))
 import Duckling.Types
 import qualified Duckling.Ordinal.Types as TOrdinal
+import qualified Duckling.Duration.Types as TDuration
 import qualified Duckling.Time.Types as TTime
 import qualified Duckling.TimeGrain.Types as TG
 
@@ -480,8 +482,8 @@ ruleDurationFromNow = Rule
     , regex "后|後|之後"
     ]
   , prod = \tokens -> case tokens of
-      (Token Duration dd:_) ->
-        tt $ inDuration dd
+      (Token Duration DurationData{TDuration.grain = g, TDuration.value = v}:_)
+        -> tt $ cycleNth g v
       _ -> Nothing
   }
 
@@ -596,8 +598,8 @@ ruleDurationAgo = Rule
     , regex "(之)?前"
     ]
   , prod = \tokens -> case tokens of
-      (Token Duration dd:_) ->
-        tt $ durationAgo dd
+      (Token Duration DurationData{TDuration.grain = g, TDuration.value = v}:_)
+        -> tt $ cycleNth g (- v)
       _ -> Nothing
   }
 
@@ -641,7 +643,7 @@ ruleNCycleLast = Rule
   , prod = \tokens -> case tokens of
       (token:Token TimeGrain grain:_) -> do
         v <- getIntValue token
-        tt $ cycleN True grain (- v)
+        tt $ cycleNth grain $ - v
       _ -> Nothing
 }
 
@@ -765,7 +767,7 @@ ruleNCycleNext = Rule
   , prod = \tokens -> case tokens of
       (token:Token TimeGrain grain:_) -> do
         v <- getIntValue token
-        tt $ cycleN True grain v
+        tt $ cycleNth grain v
       _ -> Nothing
   }
 
