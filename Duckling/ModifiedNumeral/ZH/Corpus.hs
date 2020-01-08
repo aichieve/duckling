@@ -31,6 +31,7 @@ allExamples = concat
              , "2、3万"
              , "两三万"
              , "贰叁万"
+             , "大约2、3万"
              ]
   , examples (above 50000)
              [ "5万以上"
@@ -39,6 +40,10 @@ allExamples = concat
              , "最少50000"
              , "至少50000"
              , "大于50000"
+             ]
+  , examples (above 500)
+             [ "最少500"
+             , "最小五百"
              ]
   , examples (under 200)
              [ "最多200"

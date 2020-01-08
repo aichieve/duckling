@@ -10,6 +10,7 @@
 
 module Duckling.ModifiedNumeral.Helpers
   ( empty
+  , isPositive
   , withInterval
   , withApproximate
   , withMin
@@ -20,6 +21,14 @@ import Duckling.Dimensions.Types
 import Duckling.ModifiedNumeral.Types
 import Duckling.Types hiding (Entity(value))
 
+-- -----------------------------------------------------------------
+-- Patterns
+isPositive :: Predicate
+isPositive (Token ModifiedNumeral ModifiedNumeralData{value = Just v, minValue = Nothing, maxValue = Nothing}) = v >= 0
+isPositive (Token ModifiedNumeral ModifiedNumeralData{value = Nothing, minValue = Just v, maxValue = Nothing}) = v >= 0
+isPositive (Token ModifiedNumeral ModifiedNumeralData{value = Nothing, minValue = Nothing, maxValue = Just v}) = v > 0
+isPositive (Token ModifiedNumeral ModifiedNumeralData{value = Nothing, minValue = Just min, maxValue = Just max}) = min >=0 && min < max
+isPositive _ = False
 -- -----------------------------------------------------------------
 -- Production
 empty :: ModifiedNumeralData

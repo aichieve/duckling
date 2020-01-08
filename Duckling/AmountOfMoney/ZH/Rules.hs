@@ -243,7 +243,7 @@ ruleIntervalBound :: Rule
 ruleIntervalBound = Rule
   { name = "under/less/lower/no more than <amount-of-money> (最多|不到|小于|至少|最少|大于)"
   , pattern =
-    [ regex "(最多|不到|小于|至少|最少|大于)"
+    [ regex "(最多|不到|小于|至少|最少|最小|大于)"
     , Predicate isSimpleAmountOfMoney
     ]
   , prod = \case
@@ -255,6 +255,7 @@ ruleIntervalBound = Rule
         "不到" -> Just . Token AmountOfMoney . withMax to $ currencyOnly c
         "小于" -> Just . Token AmountOfMoney . withMax to $ currencyOnly c
         "最少" -> Just . Token AmountOfMoney . withMin to $ currencyOnly c
+        "最小" -> Just . Token AmountOfMoney . withMin to $ currencyOnly c
         "至少" -> Just . Token AmountOfMoney . withMin to $ currencyOnly c
         "大于" -> Just . Token AmountOfMoney . withMin to $ currencyOnly c
         _ -> Nothing

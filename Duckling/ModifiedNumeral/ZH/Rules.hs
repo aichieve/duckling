@@ -73,7 +73,7 @@ ruleIntervalBound :: Rule
 ruleIntervalBound = Rule
   { name = "under/less/lower/no more than <number> (最多|至少|最少)"
   , pattern =
-    [ regex "(最多|不到|小于|至少|最少|大于)"
+    [ regex "(最多|不到|小于|至少|最少|最小|大于)"
     , Predicate NHelpers.isPositive
     ]
   , prod = \case
@@ -84,6 +84,7 @@ ruleIntervalBound = Rule
         "不到" -> Just . Token ModifiedNumeral . EHelpers.withMax to $ EHelpers.empty
         "小于" -> Just . Token ModifiedNumeral . EHelpers.withMax to $ EHelpers.empty
         "最少" -> Just . Token ModifiedNumeral . EHelpers.withMin to $ EHelpers.empty
+        "最小" -> Just . Token ModifiedNumeral . EHelpers.withMin to $ EHelpers.empty
         "至少" -> Just . Token ModifiedNumeral . EHelpers.withMin to $ EHelpers.empty
         "大于" -> Just . Token ModifiedNumeral . EHelpers.withMin to $ EHelpers.empty
         _ -> Nothing
@@ -147,6 +148,30 @@ ruleApproximate2 = Rule
         _ -> Nothing
   }
 
+ruleApproximate3 :: Rule
+ruleApproximate3 = Rule
+  { name = "about <number> (大约|差不多|大概)"
+  , pattern =
+    [ regex "(大约|差不多|大概)"
+    , Predicate EHelpers.isPositive
+    ]
+  , prod = \case
+        (Token RegexMatch (GroupMatch (match:_)):token:_) -> Just token
+        _ -> Nothing
+  }
+
+ruleApproximate4 :: Rule
+ruleApproximate4 = Rule
+  { name = "about <number> (左右|上下)"
+  , pattern =
+    [ Predicate EHelpers.isPositive
+    , regex "(左右|上下)"
+    ]
+  , prod = \case
+        (token:Token RegexMatch (GroupMatch (match:_)):_) -> Just token
+        _ -> Nothing
+  }
+
 rules :: [Rule]
 rules =
   [ ruleIntervalNumeral
@@ -156,4 +181,6 @@ rules =
   , rulePrecision
   , ruleApproximate
   , ruleApproximate2
+  , ruleApproximate3
+  , ruleApproximate4
   ]
