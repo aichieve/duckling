@@ -31,6 +31,7 @@ toName RegexMatch = "regex"
 toName CreditCardNumber = "credit-card-number"
 toName Distance = "distance"
 toName Duration = "duration"
+toName ModifiedDuration = "modified-duration"
 toName Email = "email"
 toName AmountOfMoney = "amount-of-money"
 toName Numeral = "number"
@@ -53,6 +54,7 @@ fromName name = HashMap.lookup name m
       , ("credit-card-number", This CreditCardNumber)
       , ("distance", This Distance)
       , ("duration", This Duration)
+      , ("modified-duration", This ModifiedDuration)
       , ("email", This Email)
       , ("number", This Numeral)
       , ("modified-number", This ModifiedNumeral)

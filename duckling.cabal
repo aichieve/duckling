@@ -366,6 +366,13 @@ library
                      , Duckling.Duration.Rules
                      , Duckling.Duration.Types
 
+                     -- ModifiedDuration
+                     , Duckling.ModifiedDuration.ZH.Corpus
+                     , Duckling.ModifiedDuration.ZH.Rules
+                     , Duckling.ModifiedDuration.Helpers
+                     , Duckling.ModifiedDuration.Rules
+                     , Duckling.ModifiedDuration.Types
+
                      -- Email
                      , Duckling.Email.DE.Corpus
                      , Duckling.Email.DE.Rules
@@ -913,6 +920,10 @@ test-suite duckling-test
                      , Duckling.Duration.UK.Tests
                      , Duckling.Duration.ZH.Tests
                      , Duckling.Duration.Tests
+
+                     -- ModifiedDuration
+                     , Duckling.ModifiedDuration.ZH.Tests
+                     , Duckling.ModifiedDuration.Tests
 
                      -- Email
                      , Duckling.Email.EN.Tests

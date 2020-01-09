@@ -17,6 +17,7 @@ import qualified Duckling.AmountOfMoney.Tests as AmountOfMoney
 import qualified Duckling.CreditCardNumber.Tests as CreditCardNumber
 import qualified Duckling.Distance.Tests as Distance
 import qualified Duckling.Duration.Tests as Duration
+import qualified Duckling.ModifiedDuration.Tests as ModifiedDuration
 import qualified Duckling.Email.Tests as Email
 import qualified Duckling.Numeral.Tests as Numeral
 import qualified Duckling.ModifiedNumeral.Tests as ModifiedNumeral
@@ -34,6 +35,7 @@ tests = testGroup "Dimensions Tests"
   , CreditCardNumber.tests
   , Distance.tests
   , Duration.tests
+  , ModifiedDuration.tests
   , Email.tests
   , Numeral.tests
   , ModifiedNumeral.tests

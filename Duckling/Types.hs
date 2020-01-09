@@ -44,6 +44,7 @@ import Duckling.AmountOfMoney.Types (AmountOfMoneyData)
 import Duckling.CreditCardNumber.Types (CreditCardNumberData)
 import Duckling.Distance.Types (DistanceData)
 import Duckling.Duration.Types (DurationData)
+import Duckling.ModifiedDuration.Types (ModifiedDurationData)
 import Duckling.Email.Types (EmailData)
 import Duckling.Locale
 import Duckling.Numeral.Types (NumeralData)
@@ -97,6 +98,7 @@ data Dimension a where
   CreditCardNumber :: Dimension CreditCardNumberData
   Distance :: Dimension DistanceData
   Duration :: Dimension DurationData
+  ModifiedDuration :: Dimension ModifiedDurationData
   Email :: Dimension EmailData
   Numeral :: Dimension NumeralData
   ModifiedNumeral :: Dimension ModifiedNumeralData
@@ -116,6 +118,7 @@ instance Show (Dimension a) where
   show CreditCardNumber = "CreditCardNumber"
   show Distance = "Distance"
   show Duration = "Duration"
+  show ModifiedDuration = "ModifiedDuration"
   show Email = "Email"
   show AmountOfMoney = "AmountOfMoney"
   show Numeral = "Numeral"
@@ -144,6 +147,7 @@ instance Hashable (Dimension a) where
   hashWithSalt s RegexMatch          = hashWithSalt s (0::Int)
   hashWithSalt s Distance            = hashWithSalt s (1::Int)
   hashWithSalt s Duration            = hashWithSalt s (2::Int)
+  hashWithSalt s ModifiedDuration    = hashWithSalt s (17::Int)
   hashWithSalt s Email               = hashWithSalt s (3::Int)
   hashWithSalt s AmountOfMoney       = hashWithSalt s (4::Int)
   hashWithSalt s Numeral             = hashWithSalt s (5::Int)
@@ -168,6 +172,8 @@ instance GEq Dimension where
   geq Distance _ = Nothing
   geq Duration Duration = Just Refl
   geq Duration _ = Nothing
+  geq ModifiedDuration ModifiedDuration = Just Refl
+  geq ModifiedDuration _ = Nothing
   geq Email Email = Just Refl
   geq Email _ = Nothing
   geq AmountOfMoney AmountOfMoney = Just Refl

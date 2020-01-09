@@ -9,6 +9,7 @@
 
 module Duckling.Duration.Helpers
   ( duration
+  , isPositive
   , isGrain
   , isNatural
   , minutesFromHourMixedFraction
@@ -26,6 +27,9 @@ import qualified Duckling.TimeGrain.Types as TG
 
 -- -----------------------------------------------------------------
 -- Patterns
+isPositive :: Predicate
+isPositive (Token Duration DurationData{TDuration.value = v}) = v >= 0
+isPositive _ = False
 
 isGrain :: TG.Grain -> Predicate
 isGrain value (Token TimeGrain grain) = grain == value

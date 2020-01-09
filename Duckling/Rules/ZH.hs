@@ -21,6 +21,7 @@ import qualified Duckling.AmountOfMoney.ZH.Rules as AmountOfMoney
 import qualified Duckling.Distance.ZH.Rules as Distance
 import qualified Duckling.Numeral.ZH.Rules as Numeral
 import qualified Duckling.ModifiedNumeral.ZH.Rules as ModifiedNumeral
+import qualified Duckling.ModifiedDuration.ZH.Rules as ModifiedDuration
 import qualified Duckling.Ordinal.ZH.Rules as Ordinal
 import qualified Duckling.Quantity.ZH.Rules as Quantity
 import qualified Duckling.Temperature.ZH.Rules as Temperature
@@ -47,6 +48,7 @@ langRules (This AmountOfMoney) = AmountOfMoney.rules
 langRules (This CreditCardNumber) = []
 langRules (This Distance) = Distance.rules
 langRules (This Duration) = []
+langRules (This ModifiedDuration) = ModifiedDuration.rules
 langRules (This Email) = []
 langRules (This Numeral) = Numeral.rules
 langRules (This ModifiedNumeral) = ModifiedNumeral.rules

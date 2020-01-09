@@ -18,6 +18,7 @@ import qualified Duckling.AmountOfMoney.Rules as AmountOfMoney
 import qualified Duckling.CreditCardNumber.Rules as CreditCardNumber
 import qualified Duckling.Distance.Rules as Distance
 import qualified Duckling.Duration.Rules as Duration
+import qualified Duckling.ModifiedDuration.Rules as ModifiedDuration
 import qualified Duckling.Email.Rules as Email
 import qualified Duckling.Numeral.Rules as Numeral
 import qualified Duckling.ModifiedNumeral.Rules as ModifiedNumeral
@@ -31,6 +32,7 @@ rules (This AmountOfMoney) = AmountOfMoney.rules
 rules (This CreditCardNumber) = CreditCardNumber.rules
 rules (This Distance) = Distance.rules
 rules (This Duration) = Duration.rules
+rules (This ModifiedDuration) = ModifiedDuration.rules
 rules (This Email) = Email.rules
 rules (This Numeral) = Numeral.rules
 rules (This ModifiedNumeral) = ModifiedNumeral.rules
