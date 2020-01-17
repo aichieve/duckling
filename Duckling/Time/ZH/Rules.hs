@@ -1256,6 +1256,141 @@ ruleComputedHolidays' = mkRuleHolidays'
           start <- intersect day $ hourMinute True 20 30
           interval TTime.Closed start $ cycleNthAfter False TG.Minute 60 start )
   ]
+ruleApproximate :: Rule
+ruleApproximate = Rule
+  { name = "<time-of-day> about (左右|上下)"
+  , pattern =
+--    [ Predicate $ isGrainFinerThan TG.Year
+--    [ Predicate $ and . sequence [isGrainFinerThan TG.Year, hasNoDirection]
+--    [ dimension Time
+    [ Predicate $ and . sequence [hasNoDirection, not . isApproximate]
+    , regex "(左右|上下)"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td:_) -> tt $ approximate $ notLatent td
+      _ -> Nothing
+  }
+
+ruleApproximate2 :: Rule
+ruleApproximate2 = Rule
+  { name = "(大约|差不多|大概) about <time>"
+  , pattern =
+    [ regex "(大约|差不多|大概)"
+    , Predicate $ and . sequence [hasNoDirection, not . isApproximate]
+--     , Predicate $ or . sequence [isATimeOfDay, isDOMValue, isAMonth]
+    ]
+  , prod = \tokens -> case tokens of
+      (_:Token Time td:_) -> tt $ approximate $ notLatent td
+      _ -> Nothing
+  }
+
+ruleIntervalBeforeTime :: Rule
+ruleIntervalBeforeTime = Rule
+  { name = "<time> before (之|以)?前"
+  , pattern =
+    [ Predicate $ and . sequence [hasNoDirection, not . isApproximate]
+    , regex "(之|以)?前"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td:_) -> tt . withDirection TTime.Before $ notLatent td
+      _ -> Nothing
+  }
+
+ruleIntervalAfterTime :: Rule
+ruleIntervalAfterTime = Rule
+  { name = "<time> after (之|以)?后"
+  , pattern =
+    [ Predicate $ and . sequence [hasNoDirection, not . isApproximate]
+    , regex "(之|以)?后"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td:_) -> tt . withDirection TTime.After $ notLatent td
+      _ -> Nothing
+  }
+
+ruleIntervalTODBetween :: Rule
+ruleIntervalTODBetween = Rule
+  { name = "<datetime> -到 <datetime> interval of time of day"
+  , pattern =
+    [ Predicate isATimeOfDay
+    , regex "(到|-|~|至)"
+    , Predicate isATimeOfDay
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td1:_:Token Time td2:_) ->
+        Token Time <$> interval TTime.Closed td1 td2
+      _ -> Nothing
+  }
+
+ruleIntervalDOWBetween :: Rule
+ruleIntervalDOWBetween = Rule
+  { name = "<dayOfWeek> -到 <dayOfWeek> interval of dayOfWeek"
+  , pattern =
+    [ Predicate isADayOfWeek
+    , regex "(到|-|~|至)"
+    , Predicate isADayOfWeek
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td1:_:Token Time td2:_) ->
+        Token Time <$> interval TTime.Closed td1 td2
+      _ -> Nothing
+  }
+
+ruleIntervalDayBetween :: Rule
+ruleIntervalDayBetween = Rule
+  { name = "<day> -到 <day> interval of day"
+  , pattern =
+    [ Predicate $ and . sequence [isNotLatent,  isGrainOfTime TG.Day]
+    , regex "(到|-|~|至)"
+    , Predicate $ and . sequence [isNotLatent,  isGrainOfTime TG.Day]
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td1:_:Token Time td2:_) ->
+        Token Time <$> interval TTime.Closed td1 td2
+      _ -> Nothing
+  }
+
+ruleIntervalMonthBetween :: Rule
+ruleIntervalMonthBetween = Rule
+  { name = "<month> -到 <month> interval of month"
+  , pattern =
+    [ Predicate isAMonth
+    , regex "(到|-|~|至)"
+    , Predicate isAMonth
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td1:_:Token Time td2:_) ->
+        Token Time <$> interval TTime.Closed td1 td2
+      _ -> Nothing
+  }
+
+ruleIntervalMonthOfYearBetween :: Rule
+ruleIntervalMonthOfYearBetween = Rule
+  { name = "<monthOfYear> -到 <monthOfYear> interval of monthOfYear"
+  , pattern =
+    [ Predicate $ and . sequence [isNotLatent,  isGrainOfTime TG.Month]
+    , regex "(到|-|~|至)"
+    , Predicate $ and . sequence [isNotLatent,  isGrainOfTime TG.Month]
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td1:_:Token Time td2:_) ->
+        Token Time <$> interval TTime.Closed td1 td2
+      _ -> Nothing
+  }
+
+ruleIntervalYearBetween :: Rule
+ruleIntervalYearBetween = Rule
+  { name = "<year> -到 <year> interval of year"
+  , pattern =
+    [ Predicate $ and . sequence [isNotLatent,  isGrainOfTime TG.Year]
+    , regex "(到|-|~|至)"
+    , Predicate $ and . sequence [isNotLatent,  isGrainOfTime TG.Year]
+    ]
+  , prod = \tokens -> case tokens of
+      (Token Time td1:_:Token Time td2:_) ->
+        Token Time <$> interval TTime.Closed td1 td2
+      _ -> Nothing
+  }
 
 rules :: [Rule]
 rules =
@@ -1336,6 +1471,16 @@ rules =
   , ruleYesterday
   , ruleYyyymmdd
   , ruleTimezone
+  , ruleApproximate
+  , ruleApproximate2
+  , ruleIntervalBeforeTime
+  , ruleIntervalAfterTime
+  , ruleIntervalTODBetween
+  , ruleIntervalDOWBetween
+  , ruleIntervalDayBetween
+  , ruleIntervalMonthBetween
+  , ruleIntervalMonthOfYearBetween
+  , ruleIntervalYearBetween
   ]
   ++ ruleDaysOfWeek
   ++ ruleMonths

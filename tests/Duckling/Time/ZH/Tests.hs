@@ -27,6 +27,7 @@ tests :: TestTree
 tests = testGroup "ZH Tests"
   [ makeCorpusTest [This Time] defaultCorpus
   , makeCorpusTest [This Time] anotherCorpus
+  , makeCorpusTest [This Time] anotherCorpus2
   , localeTests
   ]
 

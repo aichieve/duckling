@@ -15,7 +15,7 @@ module Duckling.Time.Helpers
   , isATimeOfDay, isDurationGreaterThan, isDOMInteger, isDOMOrdinal, isDOMValue
   , isGrain, isGrainFinerThan, isGrainCoarserThan, isGrainOfTime
   , isIntegerBetween, isNotLatent , isOrdinalBetween, isMidnightOrNoon
-  , isOkWithThisNext, sameGrain, hasTimezone, hasNoTimezone, today
+  , isOkWithThisNext, sameGrain, hasTimezone, hasNoTimezone, today, isApproximate
     -- Production
   , cycleLastOf, cycleN, cycleNth, cycleNthAfter, dayOfMonth, dayOfWeek
   , durationAfter, durationAgo, durationBefore, mkOkForThisNext, form, hour
@@ -25,7 +25,7 @@ module Duckling.Time.Helpers
   , predNth, predNthAfter, predNthClosest, season, second, timeOfDayAMPM
   , weekday, weekend, workweek, withDirection, year, yearMonthDay, tt, durationIntervalAgo
   , inDurationInterval, intersectWithReplacement, yearADBC, yearMonth
-  , predEveryNDaysFrom
+  , predEveryNDaysFrom, approximate
     -- Other
   , getIntValue, timeComputed, toTimeObjectM
   -- Rule constructors
@@ -364,6 +364,10 @@ isOkWithThisNext :: Predicate
 isOkWithThisNext (Token Time TimeData {TTime.okForThisNext = True}) = True
 isOkWithThisNext _ = False
 
+isApproximate :: Predicate
+isApproximate (Token Time td) = TTime.estimated td
+isApproximate _ = False
+
 -- -----------------------------------------------------------------
 -- Production
 
@@ -377,9 +381,9 @@ intersect td1 td2 =
 
 intersectWithReplacement :: TimeData -> TimeData -> TimeData -> Maybe TimeData
 intersectWithReplacement
-  (TimeData pred1 _ g1 _ _ _ _ h1 _)
-  (TimeData pred2 _ g2 _ _ _ _ h2 _)
-  (TimeData pred3 _ g3 _ _ _ _ h3 _)
+  (TimeData pred1 _ g1 _ _ _ _ h1 _ _)
+  (TimeData pred2 _ g2 _ _ _ _ h2 _ _)
+  (TimeData pred3 _ g3 _ _ _ _ h3 _ _)
   | g1 == g2 && g2 == g3 = Just $ TTime.timedata'
     { TTime.timePred = timeComposeWithReplacement pred1 pred2 pred3
     , TTime.timeGrain = g1
@@ -389,7 +393,7 @@ intersectWithReplacement
   | otherwise = Nothing
 
 intersect' :: (TimeData, TimeData) -> TimeData
-intersect' (TimeData pred1 _ g1 _ _ d1 _ h1 _, TimeData pred2 _ g2 _ _ d2 _ h2 _)
+intersect' (TimeData pred1 _ g1 _ _ d1 _ h1 _ _, TimeData pred2 _ g2 _ _ d2 _ h2 _ _)
   | g1 < g2 = TTime.timedata'
     { TTime.timePred = timeCompose pred1 pred2
     , TTime.timeGrain = g1
@@ -570,7 +574,7 @@ toTimeObjectM (year, month, day) = do
     }
 
 interval' :: TTime.TimeIntervalType -> (TimeData, TimeData) -> TimeData
-interval' intervalType (TimeData p1 _ g1 _ _ _ _ _ _, TimeData p2 _ g2 _ _ _ _ _ _) =
+interval' intervalType (TimeData p1 _ g1 _ _ _ _ _ _ _, TimeData p2 _ g2 _ _ _ _ _ _ _) =
   TTime.timedata'
     { TTime.timePred = mkTimeIntervalsPredicate intervalType' p1 p2
     , TTime.timeGrain = min g1 g2
@@ -633,6 +637,9 @@ mkLatent td = td {TTime.latent = True}
 
 notLatent :: TimeData -> TimeData
 notLatent td = td {TTime.latent = False}
+
+approximate :: TimeData -> TimeData
+approximate td = td {TTime.estimated = True}
 
 form :: TTime.Form -> TimeData -> TimeData
 form f td = td {TTime.form = Just f}

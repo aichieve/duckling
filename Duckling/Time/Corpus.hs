@@ -10,6 +10,7 @@
 
 module Duckling.Time.Corpus
   ( datetime
+  , datetimeApproximate
   , datetimeHoliday
   , datetimeInterval
   , datetimeIntervalHoliday
@@ -33,6 +34,10 @@ import Duckling.Types hiding (Entity(..))
 datetime :: Datetime -> Grain -> Context -> TimeValue
 datetime d g ctx = datetimeIntervalHolidayHelper (d, Nothing) g Nothing ctx
 
+datetimeApproximate :: Datetime -> Grain -> Context -> TimeValue
+datetimeApproximate d g ctx =
+  datetimeIntervalHolidayHelperWithApproximate (d, Nothing) g Nothing ctx
+
 datetimeHoliday :: Datetime -> Grain -> Text -> Context -> TimeValue
 datetimeHoliday d g h ctx =
   datetimeIntervalHolidayHelper (d, Nothing) g (Just h) ctx
@@ -52,6 +57,16 @@ datetimeIntervalHolidayHelper (d1, md2) g hol ctx = TimeValue tv [tv] hol
   where
     DucklingTime (Series.ZoneSeriesTime _ tzSeries) = referenceTime ctx
     tv = timeValue tzSeries TimeObject {start = dt d1, end = d, grain = g}
+    d = case md2 of
+      Nothing -> Nothing
+      Just d2 -> Just $ dt d2
+
+datetimeIntervalHolidayHelperWithApproximate ::
+  (Datetime, Maybe Datetime) -> Grain -> Maybe Text -> Context -> TimeValue
+datetimeIntervalHolidayHelperWithApproximate (d1, md2) g hol ctx = TimeValue tv [tv] hol
+  where
+    DucklingTime (Series.ZoneSeriesTime _ tzSeries) = referenceTime ctx
+    tv = timeValueWithApproximate tzSeries TimeObject {start = dt d1, end = d, grain = g}
     d = case md2 of
       Nothing -> Nothing
       Just d2 -> Just $ dt d2

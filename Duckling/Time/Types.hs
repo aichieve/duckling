@@ -66,18 +66,19 @@ data TimeData = TimeData
   , okForThisNext :: Bool -- allows specific this+Time
   , holiday :: Maybe Text
   , hasTimezone :: Bool -- hack to prevent double timezone parsing
+  , estimated :: Bool
   }
 
 instance Eq TimeData where
-  (==) (TimeData _ l1 g1 n1 f1 d1 _ _ t1) (TimeData _ l2 g2 n2 f2 d2 _ _ t2) =
+  (==) (TimeData _ l1 g1 n1 f1 d1 _ _ t1 _) (TimeData _ l2 g2 n2 f2 d2 _ _ t2 _) =
     l1 == l2 && g1 == g2 && n1 == n2 && f1 == f2 && d1 == d2 && t1 == t2
 
 instance Hashable TimeData where
-  hashWithSalt s (TimeData _ latent grain imm form dir _ _ _) = hashWithSalt s
+  hashWithSalt s (TimeData _ latent grain imm form dir _ _ _ _) = hashWithSalt s
     (0::Int, (latent, grain, imm, form, dir))
 
 instance Ord TimeData where
-  compare (TimeData _ l1 g1 n1 f1 d1 _ _ _) (TimeData _ l2 g2 n2 f2 d2 _ _ _) =
+  compare (TimeData _ l1 g1 n1 f1 d1 _ _ _ _) (TimeData _ l2 g2 n2 f2 d2 _ _ _ _) =
     case compare g1 g2 of
       EQ -> case compare f1 f2 of
         EQ -> case compare l1 l2 of
@@ -89,7 +90,7 @@ instance Ord TimeData where
       z -> z
 
 instance Show TimeData where
-  show (TimeData _ latent grain _ form dir _ holiday tz) =
+  show (TimeData _ latent grain _ form dir _ holiday tz estimated) =
     "TimeData{" ++
     "latent=" ++ show latent ++
     ", grain=" ++ show grain ++
@@ -97,6 +98,7 @@ instance Show TimeData where
     ", direction=" ++ show dir ++
     ", holiday=" ++ show holiday ++
     ", hasTimezone=" ++ show tz ++
+    ", estimated=" ++ show estimated ++
     "}"
 
 instance NFData TimeData where
@@ -105,17 +107,19 @@ instance NFData TimeData where
 instance Resolve TimeData where
   type ResolvedValue TimeData = TimeValue
   resolve _ Options {withLatent = False} TimeData {latent = True} = Nothing
-  resolve context Options{..} TimeData {timePred, latent, notImmediate, direction, holiday} = do
+  resolve context Options{..} TimeData {timePred, latent, notImmediate, direction, holiday, estimated} = do
     value <- case future of
       [] -> listToMaybe past
       ahead:nextAhead:_
         | notImmediate && isJust (timeIntersect ahead refTime) -> Just nextAhead
       ahead:_ -> Just ahead
     values <- if timeResolveStrategy == TO_THIS then (Just $ (take 3 past) ++ (take 3 future)) else (Just . take 3 $ if List.null future then past else future)
-    Just $ case direction of
-      Nothing -> (TimeValue (timeValue tzSeries value)
+    Just $ case (estimated, direction) of
+      (False, Nothing) -> (TimeValue (timeValue tzSeries value)
         (map (timeValue tzSeries) values) holiday, latent)
-      Just d -> (TimeValue (openInterval tzSeries d value)
+      (True, Nothing) -> (TimeValue (timeValueWithApproximate tzSeries value)
+        (map (timeValueWithApproximate tzSeries) values) holiday, latent)
+      (_, Just d) -> (TimeValue (openInterval tzSeries d value)
         (map (openInterval tzSeries d) values) holiday, latent)
     where
       DucklingTime (Series.ZoneSeriesTime utcTime tzSeries) = referenceTime context
@@ -144,6 +148,7 @@ timedata' = TimeData
   , okForThisNext = False
   , holiday = Nothing
   , hasTimezone = False
+  , estimated = False
   }
 
 data TimeContext = TimeContext
@@ -167,6 +172,7 @@ instance Eq InstantValue where
 
 data SingleTimeValue
   = SimpleValue InstantValue
+  | ApproximateValue InstantValue
   | IntervalValue (InstantValue, InstantValue)
   | OpenIntervalValue (InstantValue, IntervalDirection)
   deriving (Show, Eq)
@@ -196,6 +202,10 @@ instance ToJSON SingleTimeValue where
   toJSON (OpenIntervalValue (instant, After)) = object
     [ "type" .= ("interval" :: Text)
     , "from" .= toJSON instant
+    ]
+  toJSON (ApproximateValue value) = object
+    [ "type" .= ("approximate" :: Text)
+    , "approximate" .= toJSON value
     ]
 
 instance ToJSON TimeValue where
@@ -802,6 +812,11 @@ timeValue tzSeries (TimeObject s g (Just e)) = IntervalValue
   ( instantValue tzSeries s g
   , instantValue tzSeries e g
   )
+
+timeValueWithApproximate :: Series.TimeZoneSeries -> TimeObject -> SingleTimeValue
+timeValueWithApproximate tzSeries (TimeObject s g Nothing) =
+  ApproximateValue $ instantValue tzSeries s g
+timeValueWithApproximate tzSeries tObj = timeValue tzSeries tObj
 
 openInterval
   :: Series.TimeZoneSeries -> IntervalDirection -> TimeObject -> SingleTimeValue

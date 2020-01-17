@@ -11,6 +11,7 @@ module Duckling.Time.ZH.Corpus
   ( corpus
   , defaultCorpus
   , anotherCorpus
+  , anotherCorpus2
   ) where
 
 import Data.String
@@ -21,6 +22,7 @@ import Duckling.Resolve
 import Duckling.Time.Corpus
 import Duckling.TimeGrain.Types hiding (add)
 import Duckling.Testing.Types hiding (examples)
+import qualified Duckling.Time.Types as TTime
 
 defaultCorpus :: Corpus
 defaultCorpus = corpus
@@ -461,8 +463,8 @@ allExamples = concat
   , examples (datetime (2013, 2, 10, 0, 0, 0) Day)
              [ "兩天前"
              , "兩天之前"
-             , "兩日前"
-             , "兩日之前"
+--             , "兩日前"
+--             , "兩日之前"
              ]
   , examples (datetimeInterval ((2013, 2, 10, 0, 0, 0), (2013, 2, 12, 0, 0, 0)) Day)
              [ "上两天"
@@ -1046,6 +1048,51 @@ allExamples = concat
              [ "2016年地球一小时"
              , "2016年地球一小時"
              ]
+  , examples (datetimeApproximate (2013, 2, 15, 0, 0, 0) Day)
+             [ "大约二月十五号"
+             , "差不多二月十五号"
+             , "大概二月十五号"
+             , "二月十五号左右"
+             , "二月十五号上下"
+             ]
+  , examples (datetimeOpenInterval TTime.Before (2013, 2, 15, 0, 0, 0) Day)
+             [ "二月十五号之前"
+             , "二月十五号以前"
+             ]
+  , examples (datetimeOpenInterval TTime.After (2013, 2, 15, 0, 0, 0) Day)
+             [ "二月十五号之后"
+             , "二月十五号以后"
+             ]
+  , examples (datetimeInterval ((2013, 2, 12, 7, 0, 0), (2013, 2, 12, 9, 0, 0)) Hour)
+             [ "7点到8点"
+             , "7点至8点"
+             , "7点-8点"
+             , "7点~8点"
+             ]
+  , examples (datetimeInterval ((2013, 2, 12, 0, 0, 0), (2013, 2, 14, 0, 0, 0)) Day)
+             [ "星期二到星期三"
+             , "星期二至星期三"
+             , "星期二-星期三"
+             , "星期二~星期三"
+             ]
+  , examples (datetimeInterval ((2013, 2, 5, 0, 0, 0), (2013, 2, 7, 0, 0, 0)) Day)
+             [ "5号到6号"
+             , "5号至6号"
+             , "5号-6号"
+             , "5号~6号"
+             ]
+  , examples (datetimeInterval ((2013, 5, 1, 0, 0, 0), (2013, 7, 1, 0, 0, 0)) Month)
+             [ "5月到6月"
+             , "5月至6月"
+             , "5月-6月"
+             , "5月~6月"
+             ]
+  , examples (datetimeInterval ((2013, 5, 6, 0, 0, 0), (2013, 7, 9, 0, 0, 0)) Day)
+             [ "5月6号到7月8号"
+             , "5月6号至7月8号"
+             , "5月6号-7月8号"
+             , "5月6号~7月8号"
+             ]
   ]
 
 anotherContext :: Context
@@ -1065,3 +1112,21 @@ anotherCorpus = (anotherContext, testOptions {timeResolveStrategy = TO_THIS}, an
                , "6月7号早上8点"
                , "星期五上午8点"
                ]
+
+anotherCorpus2 :: Corpus
+anotherCorpus2 = (testContext {locale = makeLocale ZH Nothing}, testOptions {timeResolveStrategy = TO_FUTURE}, anotherExamples)
+  where
+    anotherExamples = concat
+      [ examples (datetimeInterval ((2018, 1, 1, 0, 0, 0), (2021, 1, 1, 0, 0, 0)) Year)
+                 [ "2018年到2020年"
+                 , "2018年至2020年"
+                 , "2018年-2020年"
+                 , "2018年~2020年"
+                 ]
+      , examples (datetimeInterval ((2012, 12, 1, 0, 0, 0), (2013, 2, 1, 0, 0, 0)) Month)
+                 [ "去年12月到今年1月"
+                 , "去年12月至今年1月"
+                 , "去年12月-今年1月"
+                 , "去年12月~今年1月"
+                 ]
+      ]
