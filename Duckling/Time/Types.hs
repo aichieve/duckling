@@ -684,6 +684,8 @@ runTimeIntervalsPredicate intervalType pred1 pred2 = timeSeqMap True finalF pred
           timeInterval intervalType thisSegment firstFuture
         else
           timeInterval intervalType thisSegment secondFuture
+      (_, firstFuture:_) -> Just $
+        timeInterval intervalType thisSegment firstFuture
       _ -> Nothing
     finalF thisSegment ctx@TimeContext{..} = case (pred1, pred2) of
       (_, (SeriesPredicate (NoShow _))) -> (f thisSegment ctx)

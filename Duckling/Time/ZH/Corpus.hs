@@ -1114,7 +1114,7 @@ anotherCorpus = (anotherContext, testOptions {timeResolveStrategy = TO_THIS}, an
                ]
 
 anotherCorpus2 :: Corpus
-anotherCorpus2 = (testContext {locale = makeLocale ZH Nothing}, testOptions {timeResolveStrategy = TO_FUTURE}, anotherExamples)
+anotherCorpus2 = (testContext {locale = makeLocale ZH Nothing}, testOptions {timeResolveStrategy = TO_THIS}, anotherExamples)
   where
     anotherExamples = concat
       [ examples (datetimeInterval ((2018, 1, 1, 0, 0, 0), (2021, 1, 1, 0, 0, 0)) Year)
