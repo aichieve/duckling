@@ -1093,6 +1093,8 @@ allExamples = concat
              , "5月6号-7月8号"
              , "5月6号~7月8号"
              ]
+  , examples (datetime (2020, 2, 15, 15, 44, 13) Second)
+             [ "2020-02-15 15:44:13" ]
   ]
 
 anotherContext :: Context

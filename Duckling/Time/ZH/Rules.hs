@@ -329,6 +329,19 @@ ruleHhmmTimeofday = Rule
       _ -> Nothing
   }
 
+ruleHHMMSS :: Rule
+ruleHHMMSS = Rule
+  { name = "hh:mm:ss"
+  , pattern = [regex "((?:[01]?\\d)|(?:2[0-3]))[:.]([0-5]\\d)[:.]([0-5]\\d)"]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (hh:mm:ss:_)):_) -> do
+        h <- parseInt hh
+        m <- parseInt mm
+        s <- parseInt ss
+        tt $ hourMinuteSecond (h < 12) h m s
+      _ -> Nothing
+  }
+
 ruleThisDayofweek :: Rule
 ruleThisDayofweek = Rule
   { name = "this <day-of-week>"
@@ -1402,6 +1415,7 @@ rules =
   , ruleEveningnight
   , ruleHhmmMilitaryTimeofday
   , ruleHhmmTimeofday
+  , ruleHHMMSS
   , ruleInDuration
   , ruleInduringThePartofday
   , ruleIntegerLatentTimeofday
