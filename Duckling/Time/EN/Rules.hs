@@ -1054,7 +1054,7 @@ rulePrecisionTOD :: Rule
 rulePrecisionTOD = Rule
   { name = "about|exactly <time-of-day>"
   , pattern =
-    [ regex "(about|around|approximately|exactly)"
+    [ regex "(?<!what\\s)(?<!how\\s)(about|around|approximately|exactly)"
     , Predicate $ isGrainFinerThan TG.Year
     ]
   , prod = \tokens -> case tokens of
@@ -2212,7 +2212,7 @@ ruleDurationHenceAgo = Rule
   { name = "<duration> hence|ago"
   , pattern =
     [ dimension Duration
-    , regex "(hence|ago)"
+    , regex "(hence|later|ago)"
     ]
   , prod = \tokens -> case tokens of
       (Token Duration dd:

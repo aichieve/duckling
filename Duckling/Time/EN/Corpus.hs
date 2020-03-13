@@ -737,24 +737,30 @@ allExamples = concat
              ]
   , examples (datetime (2013, 2, 19, 4, 0, 0) Hour)
              [ "7 days hence"
+             , "7 days later"
              ]
   , examples (datetime (2013, 2, 26, 4, 0, 0) Hour)
              [ "14 days hence"
+             , "14 days later"
              , "a fortnight hence"
              ]
   , examples (datetime (2013, 2, 19, 0, 0, 0) Day)
              [ "a week hence"
              , "one week hence"
              , "1 week hence"
+             , "one week later"
              ]
   , examples (datetime (2013, 3, 5, 0, 0, 0) Day)
              [ "three weeks hence"
+             , "three weeks later"
              ]
   , examples (datetime (2013, 5, 12, 0, 0, 0) Day)
              [ "three months hence"
+             , "three months later"
              ]
   , examples (datetime (2015, 2, 1, 0, 0, 0) Month)
              [ "two years hence"
+             , "two years later"
              ]
   , examples (datetime (2013, 12, 25, 0, 0, 0) Day)
              [ "one year After christmas"
