@@ -19,6 +19,7 @@ module Duckling.AmountOfMoney.Helpers
   , isDime
   , isMoneyWithValue
   , isWithoutCents
+  , isCurrencyUnnamed
   , withCents
   , withInterval
   , withMax
@@ -106,6 +107,10 @@ isCent (Token AmountOfMoney AmountOfMoneyData
   {value = Just c, currency = Cent}) =
   maybe False (\i -> i >= 0 && i <= 9) $ getIntValue c
 isCent _ = False
+
+isCurrencyUnnamed :: Predicate
+isCurrencyUnnamed (Token AmountOfMoney AmountOfMoneyData{value = Just _, currency = Unnamed}) = True
+isCurrencyUnnamed _ = False
 
 -- -----------------------------------------------------------------
 -- Production
