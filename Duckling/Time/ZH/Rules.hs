@@ -603,6 +603,20 @@ ruleYearNumericWithYearSymbol = Rule
       _ -> Nothing
   }
 
+ruleYearNumericWithYearSymbol2 :: Rule
+ruleYearNumericWithYearSymbol2 = Rule
+  { name = "year (numeric with year symbol2)"
+  , pattern =
+    [ Predicate $ isIntegerBetween 1 99
+    , regex "年"
+    ]
+  , prod = \tokens -> case tokens of
+      (token:_) -> do
+        v <- getIntValue token
+        tt $ year (if v > 0 && v < 49 then (2000 + v) else (1900 + v))
+      _ -> Nothing
+  }
+
 ruleDurationAgo :: Rule
 ruleDurationAgo = Rule
   { name = "<duration> ago"
@@ -1482,6 +1496,7 @@ rules =
   , ruleTonight
   , ruleWeekend
   , ruleYearNumericWithYearSymbol
+  , ruleYearNumericWithYearSymbol2
   , ruleYesterday
   , ruleYyyymmdd
   , ruleTimezone
