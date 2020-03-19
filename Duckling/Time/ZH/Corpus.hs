@@ -52,6 +52,8 @@ allExamples = concat
              [ "2/5"
              , "二月五号"
              , "这个月五号"
+             , "本月五号"
+             , "当月五号"
              , "今年2月5号"
              ]
   , examples (datetime (2013, 2, 11, 0, 0, 0) Day)

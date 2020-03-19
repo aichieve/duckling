@@ -346,7 +346,7 @@ ruleThisDayofweek :: Rule
 ruleThisDayofweek = Rule
   { name = "this <day-of-week>"
   , pattern =
-    [ regex "这|這|今(个|個)?"
+    [ regex "(这|這|今)(个|個)?|(本|当)"
     , Predicate isADayOfWeek
     ]
   , prod = \tokens -> case tokens of
@@ -846,7 +846,7 @@ ruleThisCycle :: Rule
 ruleThisCycle = Rule
   { name = "this <cycle>"
   , pattern =
-    [ regex "今(个|個)?|(这|這)(一|个|個)?"
+    [ regex "今(个|個)?|(这|這)(一|个|個)?|(本|当)"
     , dimension TimeGrain
     ]
   , prod = \tokens -> case tokens of
@@ -858,7 +858,7 @@ ruleThisTime :: Rule
 ruleThisTime = Rule
   { name = "this <time>"
   , pattern =
-    [ regex "今(个|個)?|(这|這)(一|个|個)?"
+    [ regex "今(个|個)?|(这|這)(一|个|個)?|(本|当)"
     , Predicate isOkWithThisNext
     ]
   , prod = \tokens -> case tokens of
