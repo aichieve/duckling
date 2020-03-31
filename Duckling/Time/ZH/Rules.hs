@@ -15,6 +15,7 @@ module Duckling.Time.ZH.Rules
 
 import Data.Text (Text)
 import Prelude
+import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 
 import Duckling.Dimensions.Types
@@ -29,6 +30,34 @@ import qualified Duckling.Ordinal.Types as TOrdinal
 import qualified Duckling.Duration.Types as TDuration
 import qualified Duckling.Time.Types as TTime
 import qualified Duckling.TimeGrain.Types as TG
+
+digitZHRegex :: String
+digitZHRegex = "〇|零|一|二|三|四|五|伍|六|七|八|九"
+
+integerMap :: HashMap.HashMap Text Integer
+integerMap = HashMap.fromList
+  [ ( "0", 0 )
+  , ( "〇", 0 )
+  , ( "零", 0 )
+  , ( "1", 1 )
+  , ( "一", 1 )
+  , ( "2", 2 )
+  , ( "二", 2 )
+  , ( "3", 3 )
+  , ( "三", 3 )
+  , ( "4", 4 )
+  , ( "四", 4 )
+  , ( "5", 5 )
+  , ( "五", 5 )
+  , ( "6", 6 )
+  , ( "六", 6 )
+  , ( "7", 7 )
+  , ( "七", 7 )
+  , ( "8", 8 )
+  , ( "八", 8 )
+  , ( "9", 9 )
+  , ( "九", 9 )
+  ]
 
 ruleTheDayAfterTomorrow :: Rule
 ruleTheDayAfterTomorrow = Rule
@@ -607,13 +636,36 @@ ruleYearNumericWithYearSymbol2 :: Rule
 ruleYearNumericWithYearSymbol2 = Rule
   { name = "year (numeric with year symbol2)"
   , pattern =
-    [ Predicate $ isIntegerBetween 1 99
+    [ regex "([0-9])([0-9])"
     , regex "年"
     ]
   , prod = \tokens -> case tokens of
-      (token:_) -> do
-        v <- getIntValue token
-        tt $ year (if v > 0 && v < 49 then (2000 + v) else (1900 + v))
+      (Token RegexMatch (GroupMatch (dTen:dDigit:_)):_) -> do
+        vTen <- HashMap.lookup dTen integerMap
+        vDigit <- HashMap.lookup dDigit integerMap
+        let v = fromIntegral vTen * 10 + fromIntegral vDigit
+        case (v > -1 && v < 100) of
+          True -> tt $ year (if v > -1 && v < 49 then (2000 + v) else (1900 + v))
+          False -> Nothing
+      _ -> Nothing
+  }
+
+
+ruleYearNumericWithYearSymbol3 :: Rule
+ruleYearNumericWithYearSymbol3 = Rule
+  { name = "year (numeric with year symbol3)"
+  , pattern =
+    [ regex $ "(" ++ digitZHRegex ++ ")(" ++ digitZHRegex ++ ")"
+    , regex "年"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (dTen:dDigit:_)):_) -> do
+        vTen <- HashMap.lookup dTen integerMap
+        vDigit <- HashMap.lookup dDigit integerMap
+        let v = fromIntegral vTen * 10 + fromIntegral vDigit
+        case (v > -1 && v < 100) of
+          True -> tt $ year (if v > -1 && v < 49 then (2000 + v) else (1900 + v))
+          False -> Nothing
       _ -> Nothing
   }
 
@@ -1497,6 +1549,7 @@ rules =
   , ruleWeekend
   , ruleYearNumericWithYearSymbol
   , ruleYearNumericWithYearSymbol2
+  , ruleYearNumericWithYearSymbol3
   , ruleYesterday
   , ruleYyyymmdd
   , ruleTimezone
