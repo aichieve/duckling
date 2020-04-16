@@ -103,7 +103,7 @@ parseHandler tzs = do
         dimParse = fromMaybe [] $ decode $ LBS.fromStrict $ fromMaybe "" ds
         dims = mapMaybe parseDimension dimParse
         
-        texts = map replaceFullWidthNumberWithHalfWidth $ fromMaybe []  $ decode $ LBS.fromStrict tx
+        texts = map replaceFullWidthCharWithHalfWidth $ fromMaybe []  $ decode $ LBS.fromStrict tx
         parsedResult = map (\x -> parse x context options dims) texts
 
       writeLBS $ encode parsedResult
@@ -153,8 +153,8 @@ parseHandler tzs = do
     parseTimeResolveStrategy s = fromMaybe defaultTimeResolveStrategy $ s >>=
       readMaybe . Text.unpack . Text.toUpper . Text.decodeUtf8
 
-    replaceFullWidthNumberWithHalfWidth :: [Char] -> Text  
-    replaceFullWidthNumberWithHalfWidth tx = 
+    replaceFullWidthCharWithHalfWidth :: [Char] -> Text  
+    replaceFullWidthCharWithHalfWidth tx = 
       let 
         repl '\65297' = '1'
         repl '\65298' = '2'
@@ -166,5 +166,6 @@ parseHandler tzs = do
         repl '\65304' = '8'
         repl '\65305' = '9'
         repl '\65306' = '0'
+        repl '\65295' = '/'
         repl c = c
       in Text.pack $ map repl tx  

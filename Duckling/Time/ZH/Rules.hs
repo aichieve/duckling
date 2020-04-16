@@ -809,7 +809,7 @@ ruleYyyymmdd :: Rule
 ruleYyyymmdd = Rule
   { name = "yyyy-mm-dd"
   , pattern =
-    [ regex "(\\d{2,4})[\\p{Pd}−](0?[1-9]|1[0-2])[\\p{Pd}−](3[01]|[12]\\d|0?[1-9])"
+    [ regex "(\\d{2,4})[\\p{Pd}(−|/)](0?[1-9]|1[0-2])[\\p{Pd}(−|/)](3[01]|[12]\\d|0?[1-9])"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (yy:mm:dd:_)):_) -> do
