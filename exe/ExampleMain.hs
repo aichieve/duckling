@@ -156,6 +156,8 @@ parseHandler tzs = do
     replaceFullWidthCharWithHalfWidth :: [Char] -> Text  
     replaceFullWidthCharWithHalfWidth tx = 
       let 
+        repl '\65295' = '/'
+        repl '\65296' = '0'
         repl '\65297' = '1'
         repl '\65298' = '2'
         repl '\65299' = '3'
@@ -165,7 +167,5 @@ parseHandler tzs = do
         repl '\65303' = '7'
         repl '\65304' = '8'
         repl '\65305' = '9'
-        repl '\65306' = '0'
-        repl '\65295' = '/'
         repl c = c
       in Text.pack $ map repl tx  
