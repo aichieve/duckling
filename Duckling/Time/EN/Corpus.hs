@@ -1791,4 +1791,16 @@ allExamples = concat
             , "chaitra sukladi 2018"
             , "chaitra sukhladi 2018"
             ]
+  , examples (datetimeInterval ((2013, 2, 13, 0, 0, 0), (2013, 2, 13, 15, 0, 0)) Hour)
+            [ "tomorrow before 3pm"]
+  , examples (datetimeInterval ((2013, 2, 13, 15, 0, 0), (2013, 2, 14, 0, 0, 0)) Hour)
+            [ "tomorrow after 3pm"]
+  , examples (datetimeInterval ((2013, 3, 1, 0, 0, 0), (2013, 3, 5, 0, 0, 0)) Day)
+            [ "next month before the 5th"]
+  , examples (datetimeInterval ((2013, 3, 5, 0, 0, 0), (2013, 4, 1, 0, 0, 0)) Day)
+            [ "next month after the 5th"]
+  , examples (datetimeInterval ((2014, 1, 1, 0, 0, 0), (2014, 3, 1, 0, 0, 0)) Month)
+            [ "next year before March"]
+  , examples (datetimeInterval ((2014, 3, 1, 0, 0, 0), (2015, 1, 1, 0, 0, 0)) Month)
+            [ "next year after March"]
   ]

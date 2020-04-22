@@ -51,6 +51,72 @@ ruleIntersect = Rule
       _ -> Nothing
   }
 
+ruleIntersectTomorrowAfterTime :: Rule
+ruleIntersectTomorrowAfterTime = Rule
+  { name = "intersect tomorrow before/after time"
+  , pattern =
+    [ regex "tomorrow"
+    , Predicate $ and . sequence [isNotLatent, isGrainFinerThan TG.Day]
+    ]
+  , prod = \tokens -> case tokens of
+      (_:Token Time td:_) ->
+        let target = td { TTime.direction = Nothing }
+            tomorrow = cycleNth TG.Day 1
+        in case (TTime.direction td) of
+          Just TTime.Before -> do
+            range <- interval TTime.Open (hour False 0) target
+            Token Time . notLatent <$> intersect tomorrow range
+          Just TTime.After -> do
+            range <- interval TTime.Closed target (hour False 23)
+            Token Time . notLatent <$> intersect tomorrow range
+          _ -> Nothing
+      _ -> Nothing
+  }
+
+ruleIntersectNextMonthAfterTime :: Rule
+ruleIntersectNextMonthAfterTime = Rule
+  { name = "intersect next month before/after time"
+  , pattern =
+    [ regex "next month"
+    , Predicate $ and . sequence [isNotLatent, isGrainFinerThan TG.Month]
+    ]
+  , prod = \tokens -> case tokens of
+      (_:Token Time td:_) ->
+        let target = td { TTime.direction = Nothing }
+            nextMonth = cycleNth TG.Month 1
+        in case (TTime.direction td) of
+          Just TTime.Before -> do
+            range <- interval TTime.Open (dayOfMonth 1) (durationBefore (DurationData 1 TG.Day) target)
+            Token Time . notLatent <$> intersect nextMonth range
+          Just TTime.After -> do
+            range <- interval TTime.Closed (durationAfter (DurationData 1 TG.Month) target) (cycleLastOf TG.Day nextMonth)
+            Token Time . notLatent <$> intersect nextMonth range
+          _ -> Nothing
+      _ -> Nothing
+  }
+
+ruleIntersectNextYearAfterTime :: Rule
+ruleIntersectNextYearAfterTime = Rule
+  { name = "intersect next year before/after time"
+  , pattern =
+    [ regex "next year"
+    , Predicate $ and . sequence [isNotLatent, isGrainFinerThan TG.Year]
+    ]
+  , prod = \tokens -> case tokens of
+      (_:Token Time td:_) ->
+        let target = td { TTime.direction = Nothing }
+            nextYear = cycleNth TG.Year 1
+        in case (TTime.direction td) of
+          Just TTime.Before -> do
+            range <- interval TTime.Open (month 1) target
+            Token Time . notLatent <$> intersect nextYear range
+          Just TTime.After -> do
+            range <- interval TTime.Closed target (month 12)
+            Token Time . notLatent <$> intersect nextYear range
+          _ -> Nothing
+      _ -> Nothing
+  }
+
 ruleIntersectOf :: Rule
 ruleIntersectOf = Rule
   { name = "intersect by \",\", \"of\", \"from\", \"'s\""
@@ -2526,6 +2592,9 @@ rules =
   , ruleBeginningOfMonth
   , ruleEndOfYear
   , ruleBeginningOfYear
+  , ruleIntersectTomorrowAfterTime
+  , ruleIntersectNextMonthAfterTime
+  , ruleIntersectNextYearAfterTime
   ]
   ++ ruleInstants
   ++ ruleDaysOfWeek
