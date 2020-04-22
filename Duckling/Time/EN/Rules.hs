@@ -64,10 +64,10 @@ ruleIntersectTomorrowAfterTime = Rule
             tomorrow = cycleNth TG.Day 1
         in case (TTime.direction td) of
           Just TTime.Before -> do
-            range <- interval TTime.Open (hour False 0) target
+            range <- interval TTime.Open (hourMinuteSecond False 0 0 0) target { TTime.timeGrain = TG.Second }
             Token Time . notLatent <$> intersect tomorrow range
           Just TTime.After -> do
-            range <- interval TTime.Closed target (hour False 23)
+            range <- interval TTime.Closed target { TTime.timeGrain = TG.Second } (hourMinuteSecond False 23 59 59)
             Token Time . notLatent <$> intersect tomorrow range
           _ -> Nothing
       _ -> Nothing
