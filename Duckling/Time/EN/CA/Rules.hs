@@ -40,11 +40,41 @@ ruleMMDD = Rule
       _ -> Nothing
   }
 
-ruleMMDDYYYY :: Rule
-ruleMMDDYYYY = Rule
+ruleMMDDYYYY1 :: Rule
+ruleMMDDYYYY1 = Rule
   { name = "mm/dd/yyyy"
   , pattern =
-    [ regex "(1[0-2]|0?[1-9])[-/\\s](3[01]|[12]\\d|0?[1-9])[-/\\s](\\d{2,4})"
+    [ regex "(1[0-2]|0?[1-9])-(3[01]|[12]\\d|0?[1-9])-(\\d{2,4})"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (mm:dd:yy:_)):_) -> do
+        y <- parseInt yy
+        m <- parseInt mm
+        d <- parseInt dd
+        tt $ yearMonthDay y m d
+      _ -> Nothing
+  }
+
+ruleMMDDYYYY2 :: Rule
+ruleMMDDYYYY2 = Rule
+  { name = "mm/dd/yyyy"
+  , pattern =
+    [ regex "(1[0-2]|0?[1-9])/(3[01]|[12]\\d|0?[1-9])/(\\d{2,4})"
+    ]
+  , prod = \tokens -> case tokens of
+      (Token RegexMatch (GroupMatch (mm:dd:yy:_)):_) -> do
+        y <- parseInt yy
+        m <- parseInt mm
+        d <- parseInt dd
+        tt $ yearMonthDay y m d
+      _ -> Nothing
+  }
+
+ruleMMDDYYYY3 :: Rule
+ruleMMDDYYYY3 = Rule
+  { name = "mm/dd/yyyy"
+  , pattern =
+    [ regex "(1[0-2]|0?[1-9])\\s(3[01]|[12]\\d|0?[1-9])\\s(\\d{2,4})"
     ]
   , prod = \tokens -> case tokens of
       (Token RegexMatch (GroupMatch (mm:dd:yy:_)):_) -> do
@@ -135,7 +165,9 @@ rulePeriodicHolidays = mkRuleHolidays
 rules :: [Rule]
 rules =
   [ ruleMMDD
-  , ruleMMDDYYYY
+  , ruleMMDDYYYY1
+  , ruleMMDDYYYY2
+  , ruleMMDDYYYY3
   , ruleMMDDYYYYDot
   ]
   ++ rulePeriodicHolidays
