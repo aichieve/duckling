@@ -23,7 +23,7 @@ import Duckling.Time.Types (TimeData (..))
 import Duckling.Types
 import qualified Duckling.Time.Types as TTime
 import qualified Duckling.TimeGrain.Types as TG
-
+import Debug.Trace (trace)
 ruleMMDD :: Rule
 ruleMMDD = Rule
   { name = "mm/dd"
@@ -38,14 +38,14 @@ ruleMMDD = Rule
       _ -> Nothing
   }
 
-ruleMMDDYYYY1 :: Rule
-ruleMMDDYYYY1 = Rule
+ruleMMDDYYYY :: Rule
+ruleMMDDYYYY = Rule
   { name = "mm/dd/yyyy"
   , pattern =
-    [ regex "(1[0-2]|0?[1-9])-(3[01]|[12]\\d|0?[1-9])-(\\d{2,4})"
+    [ regex "(1[0-2]|0?[1-9])(-|/|\\s)(3[01]|[12]\\d|0?[1-9])\\2(\\d{2,4})"
     ]
   , prod = \tokens -> case tokens of
-      (Token RegexMatch (GroupMatch (mm:dd:yy:_)):_) -> do
+      (Token RegexMatch (GroupMatch (mm:_:dd:yy:_)):_) -> do
         y <- parseInt yy
         m <- parseInt mm
         d <- parseInt dd
@@ -53,35 +53,6 @@ ruleMMDDYYYY1 = Rule
       _ -> Nothing
   }
 
-ruleMMDDYYYY2 :: Rule
-ruleMMDDYYYY2 = Rule
-  { name = "mm/dd/yyyy"
-  , pattern =
-    [ regex "(1[0-2]|0?[1-9])/(3[01]|[12]\\d|0?[1-9])/(\\d{2,4})"
-    ]
-  , prod = \tokens -> case tokens of
-      (Token RegexMatch (GroupMatch (mm:dd:yy:_)):_) -> do
-        y <- parseInt yy
-        m <- parseInt mm
-        d <- parseInt dd
-        tt $ yearMonthDay y m d
-      _ -> Nothing
-  }
-
-ruleMMDDYYYY3 :: Rule
-ruleMMDDYYYY3 = Rule
-  { name = "mm/dd/yyyy"
-  , pattern =
-    [ regex "(1[0-2]|0?[1-9])\\s(3[01]|[12]\\d|0?[1-9])\\s(\\d{2,4})"
-    ]
-  , prod = \tokens -> case tokens of
-      (Token RegexMatch (GroupMatch (mm:dd:yy:_)):_) -> do
-        y <- parseInt yy
-        m <- parseInt mm
-        d <- parseInt dd
-        tt $ yearMonthDay y m d
-      _ -> Nothing
-  }
 
 -- Clashes with HHMMSS, hence only 4-digit years
 ruleMMDDYYYYDot :: Rule
@@ -311,9 +282,7 @@ ruleComputedHolidays' = mkRuleHolidays'
 rulesBackwardCompatible :: [Rule]
 rulesBackwardCompatible =
   [ ruleMMDD
-  , ruleMMDDYYYY1
-  , ruleMMDDYYYY2
-  , ruleMMDDYYYY3
+  , ruleMMDDYYYY
   , ruleMMDDYYYYDot
   ]
   ++ ruleBackwardCompatibleHolidays
