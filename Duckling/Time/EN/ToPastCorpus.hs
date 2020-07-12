@@ -29,15 +29,22 @@ corpus :: Corpus
 corpus = (testContext, testOptions, allExamples)
 
 defaultCorpus :: Corpus
-defaultCorpus = (testContext, testOptions, allExamples ++ custom)
+defaultCorpus = (testContext, testOptions {timeResolveStrategy = TO_PAST}, allExamples ++ custom)
   where
     custom = concat
-      [ examples (datetime (2013, 2, 15, 0, 0, 0) Day)
+      [ examples (datetime (2012, 2, 15, 0, 0, 0) Day)
                  [ "2/15"
                  , "on 2/15"
                  , "2 / 15"
                  , "2-15"
                  , "2 - 15"
+                 ]
+      , examples (datetime (2013, 2, 10, 0, 0, 0) Day)
+                 [ "2/10"
+                 , "on 2/10"
+                 , "2 / 10"
+                 , "2-10"
+                 , "2 - 10"
                  ]
       , examples (datetime (1974, 10, 31, 0, 0, 0) Day)
                  [ "10/31/1974"
@@ -47,15 +54,20 @@ defaultCorpus = (testContext, testOptions, allExamples ++ custom)
                  , "31/Oct/1974"
                  , "31st Oct 1974"
                  ]
-      , examples (datetime (2013, 4, 25, 16, 0, 0) Minute)
+      , examples (datetime (2012, 4, 25, 16, 0, 0) Minute)
                  [ "4/25 at 4:00pm"
                  , "4/25 at 16h00"
                  , "4/25 at 16h"
                  ]
-      , examples (datetimeHoliday (2013, 11, 28, 0, 0, 0) Day "Thanksgiving Day")
+      , examples (datetime (2013, 2, 10, 16, 0, 0) Minute)
+                 [ "2/10 at 4:00pm"
+                 , "2/10 at 16h00"
+                 , "2/10 at 16h"
+                 ]
+      , examples (datetimeHoliday (2012, 11, 28, 0, 0, 0) Day "Thanksgiving Day")
                  [ "thanksgiving day"
                  , "thanksgiving"
-                 , "thanksgiving 2013"
+                 , "thanksgiving 2012"
                  , "this thanksgiving"
                  , "next thanksgiving day"
                  , "thanksgiving in 9 months"
@@ -81,77 +93,58 @@ defaultCorpus = (testContext, testOptions, allExamples ++ custom)
                  ]
       ]
 
-negativeCorpus :: NegativeCorpus
-negativeCorpus = (testContext, testOptions, examples)
-  where
-    examples =
-      [ "laughing out loud"
-      , "1 adult"
-      , "we are separated"
-      , "25"
-      , "this is the one"
-      , "this one"
-      , "this past one"
-      , "at single"
-      , "at a couple of"
-      , "at pairs"
-      , "at a few"
-      , "at dozens"
-      , "single o'clock"
-      , "dozens o'clock"
-      , "Rat 6"
-      , "rat 6"
-      , "3 30"
-      , "three twenty"
-      , "at 650.650.6500"
-      , "at 650-650-6500"
-      , "two sixty a m"
-      , "Pay ABC 2000"
-      , "4a"
-      , "4a."
-      , "A4 A5"
-      , "palm"
-      , "Martin Luther King' day"
-      ]
-
 latentCorpus :: Corpus
 latentCorpus = (testContext, testOptions {withLatent = True}, xs)
   where
     xs = concat
-      [ examples (datetime (2013, 2, 24, 0, 0, 0) Day)
+      [ examples (datetime (2013, 1, 24, 0, 0, 0) Day)
                  [ "the 24"
                  , "On 24th"
                  ]
-      , examples (datetime (2013, 2, 12, 7, 0, 0) Hour)
+      , examples (datetime (2013, 2, 10, 0, 0, 0) Day)
+                 [ "the 10"
+                 , "On 10th"
+                 ]
+      , examples (datetime (2013, 2, 11, 7, 0, 0) Hour)
                  [ "7"
                  , "7a"
                  ]
-      , examples (datetime (2013, 2, 12, 19, 0, 0) Hour)
+      , examples (datetime (2013, 2, 11, 19, 0, 0) Hour)
                  [ "7p"
                  ]
-      , examples (datetime (2013, 2, 12, 10, 30, 0) Minute)
+      , examples (datetime (2013, 2, 12, 3, 0, 0) Hour)
+                 [ "3"
+                 , "3a"
+                 ]
+      , examples (datetime (2013, 2, 11, 15, 0, 0) Hour)
+                 [ "3p"
+                 ]
+      , examples (datetime (2013, 2, 11, 10, 30, 0) Minute)
                  [ "ten thirty"
                  ]
       --, examples (datetime (1954, 1, 1, 0, 0, 0) Year)
       --           [ "1954"
       --           ]
-      , examples (datetime (2013, 5, 1, 0, 0, 0) Month)
+      , examples (datetime (2012, 5, 1, 0, 0, 0) Month)
                  [ "May"
                  ]
+      , examples (datetime (2013, 1, 1, 0, 0, 0) Month)
+                 [ "Jan"
+                 ]
       , examples (datetimeInterval
-          ((2013, 2, 12, 4, 0, 0), (2013, 2, 12, 12, 0, 0)) Hour)
+          ((2013, 2, 11, 4, 0, 0), (2013, 2, 11, 12, 0, 0)) Hour)
                  [ "morning"
                  ]
       , examples (datetimeInterval
-          ((2013, 2, 12, 12, 0, 0), (2013, 2, 12, 19, 0, 0)) Hour)
+          ((2013, 2, 11, 12, 0, 0), (2013, 2, 11, 19, 0, 0)) Hour)
                  [ "afternoon"
                  ]
       , examples (datetimeInterval
-          ((2013, 2, 12, 18, 0, 0), (2013, 2, 13, 0, 0, 0)) Hour)
+          ((2013, 2, 11, 18, 0, 0), (2013, 2, 11, 0, 0, 0)) Hour)
                  [ "evening"
                  ]
       , examples (datetimeInterval
-          ((2013, 2, 12, 18, 0, 0), (2013, 2, 13, 0, 0, 0)) Hour)
+          ((2013, 2, 11, 18, 0, 0), (2013, 2, 11, 0, 0, 0)) Hour)
                  [ "night"
                  ]
       , examples (datetimeInterval ((2013, 2, 12, 0, 0, 0), (2013, 2, 17, 0, 0, 0)) Day)
@@ -166,7 +159,7 @@ diffContext = Context
   }
 
 diffCorpus :: Corpus
-diffCorpus = (diffContext, testOptions, diffExamples)
+diffCorpus = (diffContext, testOptions {timeResolveStrategy = TO_PAST}, diffExamples)
   where
     diffExamples =
       examples (datetime (2013, 3, 8, 0, 0, 0) Day)
@@ -198,37 +191,37 @@ allExamples = concat
              [ "tomorrow"
              , "tomorrows"
              ]
-  , examples (datetime (2013, 2, 18, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 11, 0, 0, 0) Day)
              [ "monday"
              , "mon."
              , "this monday"
-             , "Monday, Feb 18"
-             , "Mon, February 18"
+             , "Monday, Feb 11"
+             , "Mon, February 1"
              ]
-  , examples (datetime (2013, 2, 19, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 5, 0, 0, 0) Day)
              [ "tuesday"
-             , "Tuesday the 19th"
-             , "Tuesday 19th"
+             , "Tuesday the 5th"
+             , "Tuesday 5th"
              ]
   , examples (datetime (2013, 8, 15, 0, 0, 0) Day)
              [ "Thu 15th"
              ]
-  , examples (datetime (2013, 2, 14, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 7, 0, 0, 0) Day)
              [ "thursday"
              , "thu"
              , "thu."
              ]
-  , examples (datetime (2013, 2, 15, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 8, 0, 0, 0) Day)
              [ "friday"
              , "fri"
              , "fri."
              ]
-  , examples (datetime (2013, 2, 16, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 8, 0, 0, 0) Day)
              [ "saturday"
              , "sat"
              , "sat."
              ]
-  , examples (datetime (2013, 2, 17, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 10, 0, 0, 0) Day)
              [ "sunday"
              , "sun"
              , "sun."
@@ -238,7 +231,7 @@ allExamples = concat
              , "first of march"
              , "march first"
              ]
-  , examples (datetime (2013, 3, 3, 0, 0, 0) Day)
+  , examples (datetime (2011, 3, 3, 0, 0, 0) Day)
              [ "march 3"
              ]
   , examples (datetime (2013, 3, 15, 0, 0, 0) Day)

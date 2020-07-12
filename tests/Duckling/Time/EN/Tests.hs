@@ -27,6 +27,7 @@ import Duckling.Testing.Asserts
 import Duckling.Testing.Types hiding (examples)
 import Duckling.Time.Corpus
 import Duckling.Time.EN.Corpus
+import Duckling.Time.EN.ToPastCorpus as TPC
 import Duckling.TimeGrain.Types (Grain(..))
 import Duckling.Types (Range(..))
 import qualified Duckling.Time.EN.AU.Corpus as AU
@@ -52,7 +53,9 @@ tests = testGroup "EN Tests"
   , intersectTests
   , rangeTests
   , localeTests
-  , makeCorpusTest [This Time] latentCorpus
+  , makeCorpusTest [This Time] TPC.defaultCorpus
+  , makeNegativeCorpusTest [This Time] TPC.negativeCorpus
+  , makeCorpusTest [This Time] TPC.diffCorpus
   ]
 
 localeTests :: TestTree

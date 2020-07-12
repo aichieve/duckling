@@ -40,7 +40,7 @@ data Context = Context
 data TimeResolveStrategy
   = TO_THIS
   | TO_FUTURE
-  -- | TO_PAST
+  | TO_PAST
   deriving (Eq, Show, Read)  
 
 data Options = Options
