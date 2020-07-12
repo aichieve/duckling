@@ -646,6 +646,7 @@ library
                      , Duckling.Time.EL.Corpus
                      , Duckling.Time.EL.Rules
                      , Duckling.Time.EN.Corpus
+                     , Duckling.Time.EN.ToPastCorpus
                      , Duckling.Time.EN.Rules
                      , Duckling.Time.EN.AU.Corpus
                      , Duckling.Time.EN.AU.Rules
