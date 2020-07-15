@@ -7,10 +7,9 @@
 
 {-# LANGUAGE OverloadedStrings #-}
 
-module Duckling.Time.EN.Corpus
-  ( corpus
+module Duckling.Time.EN.ToPastCorpus
+  ( toPastCorpus
   , defaultCorpus
-  , negativeCorpus
   , latentCorpus
   , diffCorpus
   ) where
@@ -22,14 +21,14 @@ import Duckling.Core
 import Duckling.Resolve
 import Duckling.Testing.Types hiding (examples)
 import Duckling.Time.Corpus
-import Duckling.Time.Types hiding (Month, refTime)
+import Duckling.Time.Types hiding (Month, refTime, timeResolveStrategy)
 import Duckling.TimeGrain.Types hiding (add)
 
-corpus :: Corpus
-corpus = (testContext, testOptions, allExamples)
+toPastCorpus :: Corpus
+toPastCorpus = (testContext, testOptions { timeResolveStrategy = TO_PAST }, allExamples)
 
 defaultCorpus :: Corpus
-defaultCorpus = (testContext, testOptions {timeResolveStrategy = TO_PAST}, allExamples ++ custom)
+defaultCorpus = (testContext, testOptions { timeResolveStrategy = TO_PAST }, allExamples ++ custom)
   where
     custom = concat
       [ examples (datetime (2012, 2, 15, 0, 0, 0) Day)
@@ -38,13 +37,6 @@ defaultCorpus = (testContext, testOptions {timeResolveStrategy = TO_PAST}, allEx
                  , "2 / 15"
                  , "2-15"
                  , "2 - 15"
-                 ]
-      , examples (datetime (2013, 2, 10, 0, 0, 0) Day)
-                 [ "2/10"
-                 , "on 2/10"
-                 , "2 / 10"
-                 , "2-10"
-                 , "2 - 10"
                  ]
       , examples (datetime (1974, 10, 31, 0, 0, 0) Day)
                  [ "10/31/1974"
@@ -59,17 +51,14 @@ defaultCorpus = (testContext, testOptions {timeResolveStrategy = TO_PAST}, allEx
                  , "4/25 at 16h00"
                  , "4/25 at 16h"
                  ]
-      , examples (datetime (2013, 2, 10, 16, 0, 0) Minute)
-                 [ "2/10 at 4:00pm"
-                 , "2/10 at 16h00"
-                 , "2/10 at 16h"
-                 ]
-      , examples (datetimeHoliday (2012, 11, 28, 0, 0, 0) Day "Thanksgiving Day")
+      , examples (datetimeHoliday (2012, 11, 22, 0, 0, 0) Day "Thanksgiving Day")
                  [ "thanksgiving day"
                  , "thanksgiving"
-                 , "thanksgiving 2012"
-                 , "this thanksgiving"
+                 ]
+      , examples (datetimeHoliday (2013, 11, 28, 0, 0, 0) Day "Thanksgiving Day")
+                 [ "thanksgiving 2013"
                  , "next thanksgiving day"
+                 , "this thanksgiving"
                  , "thanksgiving in 9 months"
                  , "thanksgiving 9 months from now"
                  ]
@@ -94,32 +83,21 @@ defaultCorpus = (testContext, testOptions {timeResolveStrategy = TO_PAST}, allEx
       ]
 
 latentCorpus :: Corpus
-latentCorpus = (testContext, testOptions {withLatent = True}, xs)
+latentCorpus = (testContext, testOptions {withLatent = True , timeResolveStrategy = TO_PAST }, xs)
   where
     xs = concat
       [ examples (datetime (2013, 1, 24, 0, 0, 0) Day)
                  [ "the 24"
                  , "On 24th"
                  ]
-      , examples (datetime (2013, 2, 10, 0, 0, 0) Day)
-                 [ "the 10"
-                 , "On 10th"
+      , examples (datetime (2013, 2, 11, 19, 0, 0) Hour)
+                 [ "7"
+                 , "7p"
                  ]
       , examples (datetime (2013, 2, 11, 7, 0, 0) Hour)
-                 [ "7"
-                 , "7a"
+                 [ "7a"
                  ]
-      , examples (datetime (2013, 2, 11, 19, 0, 0) Hour)
-                 [ "7p"
-                 ]
-      , examples (datetime (2013, 2, 12, 3, 0, 0) Hour)
-                 [ "3"
-                 , "3a"
-                 ]
-      , examples (datetime (2013, 2, 11, 15, 0, 0) Hour)
-                 [ "3p"
-                 ]
-      , examples (datetime (2013, 2, 11, 10, 30, 0) Minute)
+      , examples (datetime (2013, 2, 11, 22, 30, 0) Minute)
                  [ "ten thirty"
                  ]
       --, examples (datetime (1954, 1, 1, 0, 0, 0) Year)
@@ -127,9 +105,6 @@ latentCorpus = (testContext, testOptions {withLatent = True}, xs)
       --           ]
       , examples (datetime (2012, 5, 1, 0, 0, 0) Month)
                  [ "May"
-                 ]
-      , examples (datetime (2013, 1, 1, 0, 0, 0) Month)
-                 [ "Jan"
                  ]
       , examples (datetimeInterval
           ((2013, 2, 11, 4, 0, 0), (2013, 2, 11, 12, 0, 0)) Hour)
@@ -144,7 +119,7 @@ latentCorpus = (testContext, testOptions {withLatent = True}, xs)
                  [ "evening"
                  ]
       , examples (datetimeInterval
-          ((2013, 2, 11, 18, 0, 0), (2013, 2, 11, 0, 0, 0)) Hour)
+          ((2013, 2, 11, 18, 0, 0), (2013, 2, 12, 0, 0, 0)) Hour)
                  [ "night"
                  ]
       , examples (datetimeInterval ((2013, 2, 12, 0, 0, 0), (2013, 2, 17, 0, 0, 0)) Day)
@@ -159,7 +134,7 @@ diffContext = Context
   }
 
 diffCorpus :: Corpus
-diffCorpus = (diffContext, testOptions {timeResolveStrategy = TO_PAST}, diffExamples)
+diffCorpus = (diffContext, testOptions { timeResolveStrategy = TO_PAST }, diffExamples)
   where
     diffExamples =
       examples (datetime (2013, 3, 8, 0, 0, 0) Day)
@@ -194,16 +169,16 @@ allExamples = concat
   , examples (datetime (2013, 2, 11, 0, 0, 0) Day)
              [ "monday"
              , "mon."
-             , "this monday"
-             , "Monday, Feb 11"
-             , "Mon, February 1"
+--             , "this monday"
+--             , "Monday, Feb 11"
+--             , "Mon, February 11"
              ]
-  , examples (datetime (2013, 2, 5, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 05, 0, 0, 0) Day)
              [ "tuesday"
              , "Tuesday the 5th"
              , "Tuesday 5th"
              ]
-  , examples (datetime (2013, 8, 15, 0, 0, 0) Day)
+  , examples (datetime (2012, 11, 15, 0, 0, 0) Day)
              [ "Thu 15th"
              ]
   , examples (datetime (2013, 2, 7, 0, 0, 0) Day)
@@ -216,7 +191,7 @@ allExamples = concat
              , "fri"
              , "fri."
              ]
-  , examples (datetime (2013, 2, 8, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 9, 0, 0, 0) Day)
              [ "saturday"
              , "sat"
              , "sat."
@@ -226,15 +201,15 @@ allExamples = concat
              , "sun"
              , "sun."
              ]
-  , examples (datetime (2013, 3, 1, 0, 0, 0) Day)
+  , examples (datetime (2012, 3, 1, 0, 0, 0) Day)
              [ "the 1st of march"
              , "first of march"
              , "march first"
              ]
-  , examples (datetime (2011, 3, 3, 0, 0, 0) Day)
+  , examples (datetime (2012, 3, 3, 0, 0, 0) Day)
              [ "march 3"
              ]
-  , examples (datetime (2013, 3, 15, 0, 0, 0) Day)
+  , examples (datetime (2012, 3, 15, 0, 0, 0) Day)
              [ "the ides of march"
              ]
   , examples (datetime (2015, 3, 3, 0, 0, 0) Day)
@@ -246,23 +221,23 @@ allExamples = concat
              , "2015-3-3"
              , "2015-03-03"
              ]
-  , examples (datetime (2013, 2, 15, 0, 0, 0) Day)
+  , examples (datetime (2013, 1, 15, 0, 0, 0) Day)
              [ "on the 15th"
-             , "the 15th of february"
-             , "15 of february"
-             , "february the 15th"
-             , "february 15"
-             , "15th february"
-             , "February 15"
+             , "the 15th of january"
+             , "15 of january"
+             , "january the 15th"
+             , "january 15"
+             , "15th january"
+             , "January 15"
              ]
-  , examples (datetime (2013, 8, 8, 0, 0, 0) Day)
+  , examples (datetime (2012, 8, 8, 0, 0, 0) Day)
              [ "Aug 8"
              ]
   , examples (datetime (2014, 3, 1, 0, 0, 0) Month)
              [ "March in 1 year"
              , "March in a year"
              ]
-  , examples (datetime (2014, 7, 18, 0, 0, 0) Day)
+  , examples (datetime (2008, 7, 18, 0, 0, 0) Day)
              [ "Fri, Jul 18"
              , "Jul 18, Fri"
              ]
@@ -289,10 +264,10 @@ allExamples = concat
   , examples (datetime (2014, 3, 1, 0, 0, 0) Month)
              [ "March after next"
              ]
-  , examples (datetime (2013, 2, 10, 0, 0, 0) Day)
+  , examples (datetime (2008, 2, 10, 0, 0, 0) Day)
              [ "Sunday, Feb 10"
              ]
-  , examples (datetime (2013, 2, 13, 0, 0, 0) Day)
+  , examples (datetime (2008, 2, 13, 0, 0, 0) Day)
              [ "Wed, Feb13"
              ]
   , examples (datetime (2013, 2, 11, 0, 0, 0) Week)
@@ -336,13 +311,13 @@ allExamples = concat
              [ "next quarter"
              , "next qtr"
              ]
-  , examples (datetime (2013, 7, 1, 0, 0, 0) Quarter)
-             [ "third quarter"
-             , "3rd quarter"
-             , "third qtr"
-             , "3rd qtr"
-             , "the 3rd qtr"
-             ]
+--  , examples (datetime (2013, 7, 1, 0, 0, 0) Quarter)
+--             [ "third quarter"
+--             , "3rd quarter"
+--             , "third qtr"
+--             , "3rd qtr"
+--             , "the 3rd qtr"
+--             ]
   , examples (datetime (2018, 10, 1, 0, 0, 0) Quarter)
              [ "4th quarter 2018"
              , "4th qtr 2018"
@@ -417,13 +392,13 @@ allExamples = concat
   , examples (datetime (2013, 2, 10, 8, 0, 0) Hour)
              [ "day before yesterday 8am"
              ]
-  , examples (datetime (2013, 3, 25, 0, 0, 0) Day)
+  , examples (datetime (2012, 3, 26, 0, 0, 0) Day)
              [ "last Monday of March"
              ]
   , examples (datetime (2014, 3, 30, 0, 0, 0) Day)
              [ "last Sunday of March 2014"
              ]
-  , examples (datetime (2013, 10, 3, 0, 0, 0) Day)
+  , examples (datetime (2012, 10, 3, 0, 0, 0) Day)
              [ "third day of october"
              ]
   , examples (datetime (2014, 10, 6, 0, 0, 0) Week)
@@ -438,14 +413,14 @@ allExamples = concat
              [ "2nd last week of October 2018"
              , "the second last week of October 2018"
              ]
-  , examples (datetime (2013, 5, 27, 0, 0, 0) Day)
+  , examples (datetime (2012, 5, 27, 0, 0, 0) Day)
              [ "fifth last day of May"
              , "the 5th last day of May"
              ]
-  , examples (datetime (2013, 10, 7, 0, 0, 0) Week)
+  , examples (datetime (2012, 10, 8, 0, 0, 0) Week)
              [ "the week of october 6th"
              ]
-  , examples (datetime (2013, 10, 7, 0, 0, 0) Week)
+  , examples (datetime (2012, 10, 8, 0, 0, 0) Week)
              [ "the week of october 7th"
              ]
   , examples (datetime (2015, 10, 31, 0, 0, 0) Day)
@@ -455,10 +430,10 @@ allExamples = concat
   , examples (datetime (2014, 9, 22, 0, 0, 0) Week)
              [ "last week of september 2014"
              ]
-  , examples (datetime (2013, 10, 1, 0, 0, 0) Day)
-             [ "first tuesday of october"
-             , "first tuesday in october"
-             ]
+--  , examples (datetime (2013, 10, 1, 0, 0, 0) Day)
+--             [ "first tuesday of october"
+--             , "first tuesday in october"
+--             ]
   , examples (datetime (2014, 9, 16, 0, 0, 0) Day)
              [ "third tuesday of september 2014"
              ]
@@ -471,14 +446,14 @@ allExamples = concat
   , examples (datetime (2015, 1, 13, 0, 0, 0) Day)
              [ "third tuesday after christmas 2014"
              ]
-  , examples (datetime (2013, 2, 13, 3, 0, 0) Hour)
+  , examples (datetime (2013, 2, 12, 3, 0, 0) Hour)
              [ "at 3am"
              , "3 in the AM"
              , "at 3 AM"
              , "3 oclock am"
              , "at three am"
              ]
-  , examples (datetime (2013, 2, 13, 3, 18, 0) Minute)
+  , examples (datetime (2013, 2, 12, 3, 18, 0) Minute)
              [ "3:18am"
              , "3:18a"
              , "3h18"
@@ -486,7 +461,7 @@ allExamples = concat
   , examples (datetime (2016, 2, 1, 7, 0, 0) Hour)
              [ "at 7 in 3 years"
              ]
-  , examples (datetime (2013, 2, 12, 15, 0, 0) Hour)
+  , examples (datetime (2013, 2, 11, 15, 0, 0) Hour)
              [ "at 3pm"
              , "@ 3pm"
              , "3PM"
@@ -499,13 +474,13 @@ allExamples = concat
              , "at 3p"
              , "at 3p."
              ]
-  , examples (datetime (2013, 2, 12, 15, 0, 0) Minute)
+  , examples (datetime (2013, 2, 11, 15, 0, 0) Minute)
              [ "15h00"
              , "at 15h00"
              , "15h"
              , "at 15h"
              ]
-  , examples (datetime (2013, 2, 12, 15, 15, 0) Minute)
+  , examples (datetime (2013, 2, 11, 15, 15, 0) Minute)
              [ "at 15 past 3pm"
              , "a quarter past 3pm"
              , "for a quarter past 3pm"
@@ -515,21 +490,25 @@ allExamples = concat
              , "3:15pm"
              , "3:15PM"
              , "3:15p"
-             , "at 3 15"
              , "15 minutes past 3pm"
              , "15 minutes past 15h"
              ]
-  , examples (datetime (2013, 2, 12, 15, 20, 0) Minute)
+  , examples (datetime (2013, 2, 12, 3, 15, 0) Minute)
+             [ "at 3 15"
+             ]
+  , examples (datetime (2013, 2, 11, 15, 20, 0) Minute)
              [ "at 20 past 3pm"
              , "3:20 in the afternoon"
              , "3:20 in afternoon"
              , "twenty after 3pm"
              , "3:20p"
              , "15h20"
-             , "at three twenty"
              , "20 minutes past 3pm"
              ]
-  , examples (datetime (2013, 2, 12, 15, 30, 0) Minute)
+  , examples (datetime (2013, 2, 12, 3, 20, 0) Minute)
+             [ "at three twenty"
+             ]
+  , examples (datetime (2013, 2, 11, 15, 30, 0) Minute)
              [ "at half past three pm"
              , "half past 3 pm"
              , "15:30"
@@ -538,11 +517,13 @@ allExamples = concat
              , "3:30PM"
              , "330 p.m."
              , "3:30 p m"
-             , "3:30"
-             , "half three"
              , "30 minutes past 3 pm"
              ]
-   , examples (datetime (2013, 2, 12, 12, 15, 0) Minute)
+  , examples (datetime (2013, 2, 12, 3, 30, 0) Minute)
+             [ "3:30"
+             , "half three"
+             ]
+   , examples (datetime (2013, 2, 11, 12, 15, 0) Minute)
               [ "at 15 past noon"
               , "a quarter past noon"
               , "for a quarter past noon"
@@ -552,33 +533,35 @@ allExamples = concat
               , "12:15pm"
               , "12:15PM"
               , "12:15p"
-              , "at 12 15"
               , "15 minutes past noon"
-  ]
-  , examples (datetime (2013, 2, 12, 9, 59, 0) Minute)
+            ]
+   , examples (datetime (2013, 2, 12, 00, 15, 0) Minute)
+              [ "at 12 15"
+            ]
+  , examples (datetime (2013, 2, 11, 9, 59, 0) Minute)
              [ "nine fifty nine a m"
              ]
-  , examples (datetime (2013, 2, 12, 15, 23, 24) Second)
+  , examples (datetime (2013, 2, 11, 15, 23, 24) Second)
              [ "15:23:24"
              ]
-  , examples (datetime (2013, 2, 12, 11, 45, 0) Minute)
+  , examples (datetime (2013, 2, 11, 11, 45, 0) Minute)
              [ "a quarter to noon"
              , "11:45am"
              , "11h45"
              , "15 to noon"
              ]
-  , examples (datetime (2013, 2, 12, 13, 15, 0) Minute)
+  , examples (datetime (2013, 2, 11, 13, 15, 0) Minute)
              [ "a quarter past 1pm"
              , "for a quarter past 1pm"
              , "1:15pm"
              , "13h15"
              , "15 minutes from 1pm"
              ]
-  , examples (datetime (2013, 2, 12, 14, 15, 0) Minute)
+  , examples (datetime (2013, 2, 11, 14, 15, 0) Minute)
              [ "a quarter past 2pm"
              , "for a quarter past 2pm"
              ]
-  , examples (datetime (2013, 2, 12, 20, 15, 0) Minute)
+  , examples (datetime (2013, 2, 11, 20, 15, 0) Minute)
              [ "a quarter past 8pm"
              , "for a quarter past 8pm"
              ]
@@ -586,17 +569,19 @@ allExamples = concat
              [ "8 tonight"
              , "eight tonight"
              , "8 this evening"
-             , "at 8 in the evening"
+             ]
+  , examples (datetime (2013, 2, 11, 20, 0, 0) Hour)
+             [ "at 8 in the evening"
              , "in the evening at eight"
              ]
-  , examples (datetime (2013, 9, 20, 19, 30, 0) Minute)
-             [ "at 7:30 PM on Fri, Sep 20"
-             , "at 19h30 on Fri, Sep 20"
-             ]
-  , examples (datetime (2013, 2, 16, 9, 0, 0) Hour)
+--  , examples (datetime (2013, 9, 20, 19, 30, 0) Minute)
+--             [ "at 7:30 PM on Fri, Sep 20"
+--             , "at 19h30 on Fri, Sep 20"
+--             ]
+  , examples (datetime (2013, 2, 9, 9, 0, 0) Hour)
              [ "at 9am on Saturday"
              ]
-  , examples (datetime (2013, 2, 16, 9, 0, 0) Hour)
+  , examples (datetime (2013, 2, 9, 9, 0, 0) Hour)
              [ "on Saturday for 9am"
              ]
   , examples (datetime (2014, 7, 18, 19, 0, 0) Minute)
@@ -755,16 +740,16 @@ allExamples = concat
              [ "two years hence"
              , "two years later"
              ]
-  , examples (datetime (2013, 12, 25, 0, 0, 0) Day)
-             [ "one year After christmas"
-             , "a year from Christmas"
-             ]
-  , examples (datetimeInterval ((2013, 12, 18, 0, 0, 0), (2013, 12, 29, 0, 0, 0)) Day)
+--  , examples (datetime (2013, 12, 25, 0, 0, 0) Day)
+--             [ "one year After christmas"
+--             , "a year from Christmas"
+--             ]
+  , examples (datetimeInterval ((2012, 12, 18, 0, 0, 0), (2012, 12, 29, 0, 0, 0)) Day)
              [ "for 10 days from 18th Dec"
              , "from 18th Dec for 10 days"
              , "18th Dec for 10 days"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 16, 0, 0), (2013, 2, 12, 16, 31, 0)) Minute)
+  , examples (datetimeInterval ((2013, 2, 11, 16, 0, 0), (2013, 2, 11, 16, 31, 0)) Minute)
              [ "for 30' starting from 4pm"
              , "from 4pm for thirty minutes"
              , "4pm for 30 mins"
@@ -796,53 +781,61 @@ allExamples = concat
   , examples (datetimeInterval ((2013, 2, 11, 21, 0, 0), (2013, 2, 12, 0, 0, 0)) Hour)
              [ "late last night"
              ]
-  , examples (datetimeHoliday (2013, 12, 25, 0, 0, 0) Day "Christmas")
+  , examples (datetimeHoliday (2012, 12, 25, 0, 0, 0) Day "Christmas")
              [ "xmas"
              , "christmas"
              , "christmas day"
              ]
-  , examples (datetimeHoliday (2013, 12, 25, 18, 0, 0) Hour "Christmas")
+  , examples (datetimeHoliday (2012, 12, 25, 18, 0, 0) Hour "Christmas")
              [ "xmas at 6 pm"
              ]
-  , examples (datetimeIntervalHoliday ((2013, 12, 25, 4, 0, 0), (2013, 12, 25, 12, 0, 0)) Hour "Christmas")
+  , examples (datetimeIntervalHoliday ((2012, 12, 25, 4, 0, 0), (2012, 12, 25, 12, 0, 0)) Hour "Christmas")
              [ "morning of xmas"
-             , "morning of christmas 2013"
+             ]
+  , examples (datetimeIntervalHoliday ((2013, 12, 25, 4, 0, 0), (2013, 12, 25, 12, 0, 0)) Hour "Christmas")
+             [ "morning of christmas 2013"
              , "morning of this christmas day"
              ]
-  , examples (datetimeHoliday (2013, 12, 31, 0, 0, 0) Day "New Year's Eve")
+  , examples (datetimeHoliday (2012, 12, 31, 0, 0, 0) Day "New Year's Eve")
              [ "new year's eve"
              , "new years eve"
              ]
-  , examples (datetimeHoliday (2014, 1, 1, 0, 0, 0) Day "New Year's Day")
+  , examples (datetimeHoliday (2013, 1, 1, 0, 0, 0) Day "New Year's Day")
              [ "new year's day"
              , "new years day"
              ]
-  , examples (datetimeHoliday (2013, 2, 14, 0, 0, 0) Day "Valentine's Day")
+  , examples (datetimeHoliday (2012, 2, 14, 0, 0, 0) Day "Valentine's Day")
              [ "valentine's day"
              , "valentine day"
              ]
-  , examples (datetime (2013, 7, 4, 0, 0, 0) Day)
+  , examples (datetime (2012, 7, 4, 0, 0, 0) Day)
              [ "4th of July"
              , "4 of july"
              ]
-  , examples (datetimeHoliday (2013, 10, 31, 0, 0, 0) Day "Halloween")
+  , examples (datetimeHoliday (2012, 10, 31, 0, 0, 0) Day "Halloween")
              [ "halloween"
-             , "next halloween"
+             ]
+  , examples (datetimeHoliday (2013, 10, 31, 0, 0, 0) Day "Halloween")
+             [ "next halloween"
              , "Halloween 2013"
              ]
-  , examples (datetimeHoliday (2013, 11, 29, 0, 0, 0) Day "Black Friday")
+  , examples (datetimeHoliday (2012, 11, 23, 0, 0, 0) Day "Black Friday")
              [ "black friday"
-             , "black friday of this year"
+             ]
+  , examples (datetimeHoliday (2013, 11, 29, 0, 0, 0) Day "Black Friday")
+             [ "black friday of this year"
              , "black friday 2013"
              ]
   , examples (datetimeHoliday (2017, 11, 24, 0, 0, 0) Day "Black Friday")
              [ "black friday 2017"
              ]
-  , examples (datetimeHoliday (2013, 10, 16, 0, 0, 0) Day "Boss's Day")
+  , examples (datetimeHoliday (2012, 10, 16, 0, 0, 0) Day "Boss's Day")
              [ "boss's day"
              , "boss's"
              , "boss day"
-             , "next boss's day"
+             ]
+  , examples (datetimeHoliday (2013, 10, 16, 0, 0, 0) Day "Boss's Day")
+             [ "next boss's day"
              ]
   , examples (datetimeHoliday (2016, 10, 17, 0, 0, 0) Day "Boss's Day")
              [ "boss's day 2016"
@@ -851,14 +844,14 @@ allExamples = concat
              [ "boss's day 2021"
              ]
   , examples (datetimeHoliday (2014, 1, 20, 0, 0, 0) Day "Martin Luther King's Day")
-             [ "MLK day"
-             , "next Martin Luther King day"
+             [ "next Martin Luther King day"
              , "next Martin Luther King's day"
              , "next Martin Luther Kings day"
              , "this MLK day"
              ]
   , examples (datetimeHoliday (2013, 1, 21, 0, 0, 0) Day "Martin Luther King's Day")
-             [ "last MLK Jr. day"
+             [ "MLK day"
+             , "last MLK Jr. day"
              , "MLK day 2013"
              ]
   , examples (datetimeHoliday (2012, 1, 16, 0, 0, 0) Day "Martin Luther King's Day")
@@ -866,53 +859,61 @@ allExamples = concat
              , "MLK day 2012"
              , "Civil Rights Day of last year"
              ]
-  , examples (datetimeHoliday (2013, 11, 1, 0, 0, 0) Day "World Vegan Day")
+  , examples (datetimeHoliday (2012, 11, 1, 0, 0, 0) Day "World Vegan Day")
              [ "world vegan day"
              ]
   , examples (datetimeHoliday (2013, 3, 31, 0, 0, 0) Day "Easter Sunday")
-             [ "easter"
-             , "easter 2013"
+             [ "easter 2013"
              ]
  , examples (datetimeHoliday (2012, 4, 08, 0, 0, 0) Day "Easter Sunday")
-             [ "last easter"
+             [ "easter"
+              ,"last easter"
              ]
-  , examples (datetimeHoliday (2013, 4, 1, 0, 0, 0) Day "Easter Monday")
+  , examples (datetimeHoliday (2012, 4, 9, 0, 0, 0) Day "Easter Monday")
              [ "easter mon"
              ]
   , examples (datetimeHoliday (2010, 4, 4, 0, 0, 0) Day "Easter Sunday")
              [ "easter 2010"
              , "Easter Sunday two thousand ten"
              ]
-  , examples (datetime (2013, 4, 3, 0, 0, 0) Day)
+  , examples (datetime (2012, 4, 11, 0, 0, 0) Day)
              [ "three days after Easter"
              ]
-  , examples (datetimeHoliday (2013, 3, 28, 0, 0, 0) Day "Maundy Thursday")
+  , examples (datetimeHoliday (2012, 4, 5, 0, 0, 0) Day "Maundy Thursday")
              [ "Maundy Thursday"
              , "Covenant thu"
              , "Thu of Mysteries"
              ]
-  , examples (datetimeHoliday (2013, 5, 19, 0, 0, 0) Day "Pentecost")
+  , examples (datetimeHoliday (2012, 5, 27, 0, 0, 0) Day "Pentecost")
              [ "Pentecost"
-             , "white sunday 2013"
              ]
-  , examples (datetimeHoliday (2013, 5, 20, 0, 0, 0) Day "Whit Monday")
+  , examples (datetimeHoliday (2013, 5, 19, 0, 0, 0) Day "Pentecost")
+             [ "white sunday 2013"
+             ]
+  , examples (datetimeHoliday (2012, 5, 28, 0, 0, 0) Day "Whit Monday")
              [ "whit monday"
              , "Monday of the Holy Spirit"
              ]
-  , examples (datetimeHoliday (2013, 3, 24, 0, 0, 0) Day "Palm Sunday")
+  , examples (datetimeHoliday (2012, 4, 1, 0, 0, 0) Day "Palm Sunday")
              [ "palm sunday"
-             , "branch sunday 2013"
              ]
-  , examples (datetimeHoliday (2013, 5, 26, 0, 0, 0) Day "Trinity Sunday")
+  , examples (datetimeHoliday (2013, 3, 24, 0, 0, 0) Day "Palm Sunday")
+             [ "branch sunday 2013"
+             ]
+  , examples (datetimeHoliday (2012, 6, 3, 0, 0, 0) Day "Trinity Sunday")
              [ "trinity sunday"
              ]
   , examples (datetimeHoliday (2013, 2, 12, 0, 0, 0) Day "Shrove Tuesday")
              [ "pancake day 2013"
-             , "mardi gras"
+             ]
+  , examples (datetimeHoliday (2012, 2, 21, 0, 0, 0) Day "Shrove Tuesday")
+             [ "mardi gras"
              ]
   , examples (datetimeHoliday (2013, 3, 17, 0, 0, 0) Day "St Patrick's Day")
              [ "st patrick's day 2013"
-             , "st paddy's day"
+             ]
+  , examples (datetimeHoliday (2012, 3, 17, 0, 0, 0) Day "St Patrick's Day")
+             [ "st paddy's day"
              , "saint paddy's day"
              , "saint patricks day"
              ]
@@ -953,10 +954,10 @@ allExamples = concat
   , examples (datetimeInterval ((2013, 2, 15, 18, 0, 0), (2013, 2, 18, 0, 0, 0)) Hour)
              [ "this week-end"
              ]
-  , examples (datetimeInterval ((2013, 2, 18, 4, 0, 0), (2013, 2, 18, 12, 0, 0)) Hour)
+  , examples (datetimeInterval ((2013, 2, 11, 4, 0, 0), (2013, 2, 11, 12, 0, 0)) Hour)
              [ "monday mOrnIng"
              ]
-  , examples (datetimeInterval ((2013, 2, 18, 4, 0, 0), (2013, 2, 18, 9, 0, 0)) Hour)
+  , examples (datetimeInterval ((2013, 2, 11, 4, 0, 0), (2013, 2, 11, 9, 0, 0)) Hour)
              [ "monday early in the morning"
              , "monday early morning"
              , "monday in the early hours of the morning"
@@ -965,7 +966,7 @@ allExamples = concat
              [ "late tonight"
              , "late tonite"
              ]
-  , examples (datetimeInterval ((2013, 2, 15, 4, 0, 0), (2013, 2, 15, 12, 0, 0)) Hour)
+  , examples (datetimeInterval ((2012, 2, 15, 4, 0, 0), (2012, 2, 15, 12, 0, 0)) Hour)
              [ "february the 15th in the morning"
              , "15 of february in the morning"
              , "morning of the 15th of february"
@@ -1031,14 +1032,14 @@ allExamples = concat
              [ "next 3 years"
              , "next three years"
              ]
-  , examples (datetimeInterval ((2013, 7, 13, 0, 0, 0), (2013, 7, 16, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 7, 13, 0, 0, 0), (2012, 7, 16, 0, 0, 0)) Day)
              [ "July 13-15"
              , "July 13 to 15"
              , "July 13 thru 15"
              , "July 13 through 15"
              , "July 13 - July 15"
              ]
-  , examples (datetimeInterval ((2013, 7, 13, 0, 0, 0), (2013, 7, 16, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 7, 13, 0, 0, 0), (2012, 7, 16, 0, 0, 0)) Day)
              [ "from July 13-15"
              , "from 13 to 15 July"
              , "from 13th to 15th July"
@@ -1047,7 +1048,7 @@ allExamples = concat
              , "from the 13th to the 15th July"
              , "from the 13 to the 15 July"
              ]
-  , examples (datetimeInterval ((2013, 7, 13, 0, 0, 0), (2013, 7, 16, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 7, 13, 0, 0, 0), (2012, 7, 16, 0, 0, 0)) Day)
              [ "from 13 to 15 of July"
              , "from 13th to 15 of July"
              , "from 13 to 15th of July"
@@ -1061,20 +1062,24 @@ allExamples = concat
              , "from the 13 to the 15th of July"
              , "from the 13th to the 15th of July"
              ]
-  , examples (datetimeInterval ((2013, 8, 8, 0, 0, 0), (2013, 8, 13, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 8, 8, 0, 0, 0), (2012, 8, 13, 0, 0, 0)) Day)
              [ "Aug 8 - Aug 12"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 9, 30, 0), (2013, 2, 12, 11, 1, 0)) Minute)
+  , examples (datetimeInterval ((2013, 2, 11, 21, 30, 0), (2013, 2, 11, 23, 1, 0)) Minute)
              [ "9:30 - 11:00"
-             , "9h30 - 11h00"
+             ]
+  , examples (datetimeInterval ((2013, 2, 11, 9, 30, 0), (2013, 2, 11, 11, 1, 0)) Minute)
+             [ "9h30 - 11h00"
              , "9h30 - 11h"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 13, 30, 0), (2013, 2, 12, 15, 1, 0)) Minute)
+  , examples (datetimeInterval ((2013, 2, 12, 1, 30, 0), (2013, 2, 12, 3, 1, 0)) Minute)
              [ "9:30 - 11:00 CST"
-             , "9h30 - 11h00 CST"
+             ]
+  , examples (datetimeInterval ((2013, 2, 11, 13, 30, 0), (2013, 2, 11, 15, 1, 0)) Minute)
+             [ "9h30 - 11h00 CST"
              , "9h30 - 11h CST"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 13, 0, 0), (2013, 2, 12, 16, 1, 0)) Minute)
+  , examples (datetimeInterval ((2013, 2, 11, 13, 0, 0), (2013, 2, 11, 16, 1, 0)) Minute)
              [ "15:00 GMT - 18:00 GMT"
              , "15h00 GMT - 18h00 GMT"
              , "15h GMT - 18h GMT"
@@ -1083,7 +1088,7 @@ allExamples = concat
       ((2015, 3, 28, 17, 00, 0), (2015, 3, 29, 21, 0, 1)) Second)
              [ "2015-03-28 17:00:00/2015-03-29 21:00:00"
              ]
-  , examples (datetimeInterval ((2013, 2, 14, 9, 30, 0), (2013, 2, 14, 11, 1, 0)) Minute)
+  , examples (datetimeInterval ((2013, 2, 7, 9, 30, 0), (2013, 2, 7, 11, 1, 0)) Minute)
              [ "from 9:30 - 11:00 on Thursday"
              , "between 9:30 and 11:00 on thursday"
              , "between 9h30 and 11h00 on thursday"
@@ -1098,12 +1103,12 @@ allExamples = concat
   , examples (datetimeInterval ((2013, 2, 13, 1, 0, 0), (2013, 2, 13, 2, 31, 0)) Minute)
              [ "tomorrow in between 1-2:30 ish"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 15, 0, 0), (2013, 2, 12, 17, 0, 0)) Hour)
+  , examples (datetimeInterval ((2013, 2, 11, 15, 0, 0), (2013, 2, 11, 17, 0, 0)) Hour)
              [ "3-4pm"
              , "from 3 to 4 in the PM"
              , "around 3-4pm"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 15, 30, 0), (2013, 2, 12, 18, 1, 0)) Minute)
+  , examples (datetimeInterval ((2013, 2, 11, 15, 30, 0), (2013, 2, 11, 18, 1, 0)) Minute)
              [ "3:30 to 6 PM"
              , "3:30-6 p.m."
              , "3:30-6:00pm"
@@ -1113,22 +1118,24 @@ allExamples = concat
              , "later than 3:30pm but before 6pm"
              , "between 3:30pm and 6 pm"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 15, 0, 0), (2013, 2, 12, 18, 0, 1)) Second)
+  , examples (datetimeInterval ((2013, 2, 11, 15, 0, 0), (2013, 2, 11, 18, 0, 1)) Second)
              [ "3pm - 6:00:00pm"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 8, 0, 0), (2013, 2, 12, 14, 0, 0)) Hour)
+  , examples (datetimeInterval ((2013, 2, 11, 8, 0, 0), (2013, 2, 11, 14, 0, 0)) Hour)
              [ "8am - 1pm"
              ]
-  , examples (datetimeInterval ((2013, 2, 14, 9, 0, 0), (2013, 2, 14, 12, 0, 0)) Hour)
+  , examples (datetimeInterval ((2013, 2, 7, 9, 0, 0), (2013, 2, 7, 12, 0, 0)) Hour)
              [ "Thursday from 9a to 11a"
-             , "this Thu 9-11am"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 11, 30, 0), (2013, 2, 12, 13, 31, 0)) Minute)
+  , examples (datetimeInterval ((2013, 2, 14, 9, 0, 0), (2013, 2, 14, 12, 0, 0)) Hour)
+             [ "this Thu 9-11am"
+             ]
+  , examples (datetimeInterval ((2013, 2, 11, 23, 30, 0), (2013, 2, 12, 1, 31, 0)) Minute)
              [ "11:30-1:30"
              ]
-  , examples (datetime (2013, 9, 21, 13, 30, 0) Minute)
-             [ "1:30 PM on Sat, Sep 21"
-             ]
+--  , examples (datetime (2013, 9, 21, 13, 30, 0) Minute)
+--             [ "1:30 PM on Sat, Sep 21"
+--             ]
   , examples (datetimeInterval ((2013, 2, 12, 4, 30, 0), (2013, 2, 26, 0, 0, 0)) Second)
              [ "Within 2 weeks"
              ]
@@ -1163,10 +1170,10 @@ allExamples = concat
   , examples (datetimeInterval ((2013, 2, 12, 4, 30, 0), (2013, 4, 1, 0, 0, 0)) Second)
              [ "by the end of next month"
              ]
-  , examples (datetime (2013, 2, 12, 13, 0, 0) Minute)
+  , examples (datetime (2013, 2, 11, 13, 0, 0) Minute)
              [ "4pm CET"
              ]
-  , examples (datetime (2013, 2, 14, 6, 0, 0) Minute)
+  , examples (datetime (2013, 2, 7, 6, 0, 0) Minute)
              [ "Thursday 8:00 GMT"
              , "Thursday 8:00 gmt"
              , "Thursday 8h00 GMT"
@@ -1178,7 +1185,7 @@ allExamples = concat
              , "Thursday 9 am BST"
              , "Thursday 9 am (BST)"
              ]
-  , examples (datetime (2013, 2, 14, 14, 0, 0) Minute)
+  , examples (datetime (2013, 2, 7, 14, 0, 0) Minute)
              [ "Thursday 8:00 PST"
              , "Thursday 8:00 pst"
              , "Thursday 8h00 PST"
@@ -1191,7 +1198,9 @@ allExamples = concat
              ]
   , examples (datetime (2013, 2, 12, 14, 0, 0) Hour)
              [ "today at 2pm"
-             , "at 2pm"
+             ]
+  , examples (datetime (2013, 2, 11, 14, 0, 0) Hour)
+             [ "at 2pm"
              ]
   , examples (datetime (2013, 2, 13, 15, 0, 0) Hour)
              [ "3pm tomorrow"
@@ -1199,11 +1208,11 @@ allExamples = concat
   , examples (datetime (2013, 2, 12, 5, 30, 0) Minute)
              [ "today in one hour"
              ]
-  , examples (datetimeOpenInterval Before (2013, 2, 12, 14, 0, 0) Minute)
+  , examples (datetimeOpenInterval Before (2013, 2, 11, 14, 0, 0) Minute)
              [ "until 2:00pm"
              , "through 2:00pm"
              ]
-  , examples (datetimeOpenInterval After (2013, 2, 12, 14, 0, 0) Hour)
+  , examples (datetimeOpenInterval After (2013, 2, 11, 14, 0, 0) Hour)
              [ "after 2 pm"
              , "from 2 pm"
              , "since 2pm"
@@ -1219,16 +1228,16 @@ allExamples = concat
   , examples (datetimeOpenInterval After (2013, 2, 17, 4, 0, 0) Hour)
              [ "after 5 days"
              ]
-  , examples (datetimeOpenInterval Before (2013, 2, 12, 11, 0, 0) Hour)
+  , examples (datetimeOpenInterval Before (2013, 2, 11, 11, 0, 0) Hour)
              [ "before 11 am"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 12, 0, 0), (2013, 2, 12, 19, 0, 0)) Hour)
+  , examples (datetimeInterval ((2013, 2, 11, 12, 0, 0), (2013, 2, 11, 19, 0, 0)) Hour)
              [ "in the afternoon"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 8, 0, 0), (2013, 2, 12, 19, 0, 0)) Hour)
+  , examples (datetimeInterval ((2013, 2, 11, 8, 0, 0), (2013, 2, 11, 19, 0, 0)) Hour)
              [ "8am until 6"
              ]
-  , examples (datetime (2013, 2, 12, 13, 30, 0) Minute)
+  , examples (datetime (2013, 2, 11, 13, 30, 0) Minute)
              [ "at 1:30pm"
              , "1:30pm"
              , "at 13h30"
@@ -1239,13 +1248,13 @@ allExamples = concat
              , "in 15'"
              , "in 15"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 13, 0, 0), (2013, 2, 12, 17, 0, 0)) Hour)
-             [ "after lunch"
-             ]
-  , examples (datetimeInterval ((2013, 2, 12, 15, 0, 0), (2013, 2, 12, 21, 0, 0)) Hour)
-             [ "after school"
-             ]
-  , examples (datetime (2013, 2, 12, 10, 30, 0) Minute)
+--  , examples (datetimeInterval ((2013, 2, 12, 13, 0, 0), (2013, 2, 12, 17, 0, 0)) Hour)
+--             [ "after lunch"
+--             ]
+--  , examples (datetimeInterval ((2013, 2, 12, 15, 0, 0), (2013, 2, 12, 21, 0, 0)) Hour)
+--             [ "after school"
+--             ]
+  , examples (datetime (2013, 2, 11, 22, 30, 0) Minute)
              [ "10:30"
              , "approximately 1030"
              ]
@@ -1255,11 +1264,11 @@ allExamples = concat
   , examples (datetime (2013, 2, 18, 0, 0, 0) Day)
              [ "next monday"
              ]
-  , examples (datetime (2013, 2, 12, 12, 0, 0) Hour)
+  , examples (datetime (2013, 2, 11, 12, 0, 0) Hour)
              [ "at 12pm"
              , "at noon"
              ]
-  , examples (datetime (2013, 2, 13, 0, 0, 0) Hour)
+  , examples (datetime (2013, 2, 12, 0, 0, 0) Hour)
              [ "at 12am"
              , "at midnight"
              ]
@@ -1270,7 +1279,7 @@ allExamples = concat
   , examples (datetime (2013, 2, 13, 21, 0, 0) Hour)
              [ "9 tomorrow evening"
              ]
-  , examples (datetime (2013, 3, 1, 0, 0, 0) Month)
+  , examples (datetime (2012, 3, 1, 0, 0, 0) Month)
              [ "March"
              , "in March"
              , "during March"
@@ -1288,16 +1297,18 @@ allExamples = concat
   , examples (datetimeInterval ((2013, 2, 13, 13, 0, 0), (2013, 2, 13, 15, 0, 0)) Hour)
              [ "1pm-2pm tomorrow"
              ]
-  , examples (datetime (2013, 3, 1, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 1, 0, 0, 0) Day)
              [ "on the first"
              , "the 1st"
              ]
-  , examples (datetime (2013, 2, 12, 10, 30, 0) Minute)
+  , examples (datetime (2013, 2, 11, 22, 30, 0) Minute)
              [ "at 1030"
              , "around 1030"
-             , "ten thirty am"
              ]
-  , examples (datetime (2013, 2, 12, 19, 30, 0) Minute)
+  , examples (datetime (2013, 2, 11, 10, 30, 0) Minute)
+             [ "ten thirty am"
+             ]
+  , examples (datetime (2013, 2, 11, 19, 30, 0) Minute)
              [ "at 730 in the evening"
              , "seven thirty p.m."
              ]
@@ -1307,22 +1318,22 @@ allExamples = concat
   , examples (datetime (2013, 2, 12, 23, 0, 0) Hour)
              [ "tonight at 11"
              ]
-  , examples (datetime (2013, 2, 12, 4, 23, 0) Minute)
+--  , examples (datetime (2013, 2, 12, 4, 23, 0) Minute)
     -- yes, the result is in the past, we may need to revisit
-             [ "at 4:23"
-             , "4:23am"
-             , "four twenty-three a m"
-             ]
-  , examples (datetimeInterval ((2013, 3, 1, 0, 0, 0), (2013, 3, 11, 0, 0, 0)) Day)
+--             [ "at 4:23"
+--             , "4:23am"
+--             , "four twenty-three a m"
+--             ]
+  , examples (datetimeInterval ((2012, 3, 1, 0, 0, 0), (2012, 3, 11, 0, 0, 0)) Day)
              [ "early March"
              ]
-  , examples (datetimeInterval ((2013, 3, 11, 0, 0, 0), (2013, 3, 21, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 3, 11, 0, 0, 0), (2012, 3, 21, 0, 0, 0)) Day)
              [ "mid March"
              ]
-  , examples (datetimeInterval ((2013, 3, 21, 0, 0, 0), (2013, 4, 1, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 3, 21, 0, 0, 0), (2012, 4, 1, 0, 0, 0)) Day)
              [ "late March"
              ]
-  , examples (datetimeInterval ((2013, 10, 25, 18, 0, 0), (2013, 10, 28, 0, 0, 0)) Hour)
+  , examples (datetimeInterval ((2012, 10, 26, 18, 0, 0), (2012, 10, 29, 0, 0, 0)) Hour)
              [ "last weekend of October"
              , "last week-end in October"
              , "last week end of October"
@@ -1333,33 +1344,33 @@ allExamples = concat
   , examples (datetimeInterval ((2013, 2, 12, 0, 0, 0), (2013, 2, 17, 0, 0, 0)) Day)
              [ "rest of the week"
              ]
-  , examples (datetimeInterval ((2013, 7, 26, 18, 0, 0), (2013, 7, 29, 0, 0, 0)) Hour)
+  , examples (datetimeInterval ((2012, 7, 27, 18, 0, 0), (2012, 7, 30, 0, 0, 0)) Hour)
              [ "last wkend of July"
              ]
   , examples (datetimeInterval ((2017, 10, 27, 18, 0, 0), (2017, 10, 30, 0, 0, 0)) Hour)
              [ "last weekend of October 2017"
              ]
-  , examples (datetimeInterval ((2013, 8, 27, 0, 0, 0), (2013, 8, 30, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 8, 27, 0, 0, 0), (2012, 8, 30, 0, 0, 0)) Day)
              [ "August 27th - 29th"
              , "from August 27th - 29th"
              ]
-  , examples (datetimeInterval ((2013, 10, 23, 0, 0, 0), (2013, 10, 27, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 10, 23, 0, 0, 0), (2012, 10, 27, 0, 0, 0)) Day)
              [ "23rd to 26th Oct"
              ]
-  , examples (datetimeInterval ((2013, 9, 1, 0, 0, 0), (2013, 9, 9, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 9, 1, 0, 0, 0), (2012, 9, 9, 0, 0, 0)) Day)
              [ "1-8 september"
              ]
-  , examples (datetimeInterval ((2013, 9, 12, 0, 0, 0), (2013, 9, 17, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 9, 12, 0, 0, 0), (2012, 9, 17, 0, 0, 0)) Day)
              [ "12 to 16 september"
              ]
-  , examples (datetimeInterval ((2013, 8, 19, 0, 0, 0), (2013, 8, 22, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 8, 19, 0, 0, 0), (2012, 8, 22, 0, 0, 0)) Day)
              [ "19th To 21st aug"
              ]
-  , examples (datetimeInterval ((2013, 4, 21, 0, 0, 0), (2013, 5, 1, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2012, 4, 21, 0, 0, 0), (2012, 5, 1, 0, 0, 0)) Day)
              [ "end of April"
              , "at the end of April"
              ]
-  , examples (datetimeInterval ((2014, 1, 1, 0, 0, 0), (2014, 1, 11, 0, 0, 0)) Day)
+  , examples (datetimeInterval ((2013, 1, 1, 0, 0, 0), (2013, 1, 11, 0, 0, 0)) Day)
              [ "beginning of January"
              , "at the beginning of January"
              ]
@@ -1377,20 +1388,20 @@ allExamples = concat
              , "the BOY"
              , "BOY"
              ]
-  , examples (datetimeInterval ((2013, 2, 12, 4, 30, 0), (2014, 1, 1, 0, 0, 0)) Second)
-             [ "by EOY"
-             , "by the EOY"
-             , "by end of the year"
-             , "by the end of year"
-             ]
-  , examples (datetimeInterval ((2013, 9, 1, 0, 0, 0), (2014, 1, 1, 0, 0, 0)) Month)
-             [ "EOY"
-             , "the EOY"
-             , "at the EOY"
-             , "the end of the year"
-             , "end of the year"
-             , "at the end of year"
-             ]
+--  , examples (datetimeInterval ((2013, 2, 12, 4, 30, 0), (2014, 1, 1, 0, 0, 0)) Second)
+--             [ "by EOY"
+--             , "by the EOY"
+--             , "by end of the year"
+--             , "by the end of year"
+--             ]
+--  , examples (datetimeInterval ((2013, 9, 1, 0, 0, 0), (2014, 1, 1, 0, 0, 0)) Month)
+--             [ "EOY"
+--             , "the EOY"
+--             , "at the EOY"
+--             , "the end of the year"
+--             , "end of the year"
+--             , "at the end of year"
+--             ]
   , examples (datetimeInterval ((2013, 2, 11, 0, 0, 0), (2013, 2, 14, 0, 0, 0)) Day)
              [ "beginning of this week"
              , "beginning of current week"
@@ -1439,7 +1450,7 @@ allExamples = concat
              , "at the end of the following week"
              , "at the end of around next week"
              ]
-  , examples (datetimeHoliday (2014, 1, 31, 0, 0, 0) Day "Chinese New Year")
+  , examples (datetimeHoliday (2013, 2, 10, 0, 0, 0) Day "Chinese New Year")
              [ "chinese new year"
              , "chinese lunar new year's day"
              ]
@@ -1704,31 +1715,35 @@ allExamples = concat
              ]
   , examples (datetimeIntervalHoliday ((2013, 4, 26, 0, 0, 0), (2013, 4, 29, 0, 0, 0)) Day "Global Youth Service Day")
              [ "GYSD 2013"
-             , "global youth service day"
              ]
-  , examples (datetimeHoliday (2013, 5, 24, 0, 0, 0) Day "Vesak")
+  , examples (datetimeIntervalHoliday ((2012, 4, 20, 0, 0, 0), (2012, 4, 23, 0, 0, 0)) Day "Global Youth Service Day")
+             [ "global youth service day"
+             ]
+  , examples (datetimeHoliday (2012, 5, 5, 0, 0, 0) Day "Vesak")
              [ "vesak"
              , "vaisakha"
              , "Buddha day"
              , "Buddha Purnima"
              ]
-  , examples (datetimeIntervalHoliday ((2013, 3, 23, 20, 30, 0), (2013, 3, 23, 21, 31, 0)) Minute "Earth Hour")
+  , examples (datetimeIntervalHoliday ((2012, 3, 31, 20, 30, 0), (2012, 3, 31, 21, 31, 0)) Minute "Earth Hour")
              [ "earth hour"
              ]
   , examples (datetimeIntervalHoliday ((2016, 3, 19, 20, 30, 0), (2016, 3, 19, 21, 31, 0)) Minute "Earth Hour")
              [ "earth hour 2016"
              ]
-  , examples (datetimeHoliday (2013, 2, 23, 0, 0, 0) Day "Purim")
+  , examples (datetimeHoliday (2012, 3, 7, 0, 0, 0) Day "Purim")
              [ "purim"
              ]
-  , examples (datetimeHoliday (2013, 2, 24, 0, 0, 0) Day "Shushan Purim")
+  , examples (datetimeHoliday (2012, 3, 8, 0, 0, 0) Day "Shushan Purim")
              [ "Shushan Purim"
              ]
-  , examples (datetimeHoliday (2014, 1, 7, 0, 0, 0) Day "Guru Gobind Singh Jayanti")
+  , examples (datetimeHoliday (2013, 1, 18, 0, 0, 0) Day "Guru Gobind Singh Jayanti")
              [ "guru gobind singh birthday"
-             , "guru gobind singh jayanti 2014"
              , "guru gobind singh jayanti"
              , "Guru Govind Singh Jayanti"
+             ]
+  , examples (datetimeHoliday (2014, 1, 7, 0, 0, 0) Day "Guru Gobind Singh Jayanti")
+             [ "guru gobind singh jayanti 2014"
              ]
   , examples (datetimeHoliday (2018, 4, 27, 0, 0, 0) Day "King's Day")
             [ "Koningsdag 2018"

@@ -27,7 +27,7 @@ import Duckling.Testing.Asserts
 import Duckling.Testing.Types hiding (examples)
 import Duckling.Time.Corpus
 import Duckling.Time.EN.Corpus
-import Duckling.Time.EN.ToPastCorpus as TPC
+import qualified Duckling.Time.EN.ToPastCorpus as TPC
 import Duckling.TimeGrain.Types (Grain(..))
 import Duckling.Types (Range(..))
 import qualified Duckling.Time.EN.AU.Corpus as AU
@@ -41,6 +41,7 @@ import qualified Duckling.Time.EN.NZ.Corpus as NZ
 import qualified Duckling.Time.EN.PH.Corpus as PH
 import qualified Duckling.Time.EN.TT.Corpus as TT
 import qualified Duckling.Time.EN.US.Corpus as US
+import qualified Duckling.Time.EN.US.ToPastCorpus as US_TP
 import qualified Duckling.Time.EN.ZA.Corpus as ZA
 
 tests :: TestTree
@@ -54,7 +55,6 @@ tests = testGroup "EN Tests"
   , rangeTests
   , localeTests
   , makeCorpusTest [This Time] TPC.defaultCorpus
-  , makeNegativeCorpusTest [This Time] TPC.negativeCorpus
   , makeCorpusTest [This Time] TPC.diffCorpus
   ]
 
@@ -102,6 +102,7 @@ localeTests = testGroup "Locale Tests"
     ]
   , testGroup "EN_US Tests"
     [ makeCorpusTest [This Time] $ withLocale corpus localeUS US.allExamples
+    , makeCorpusTest [This Time] $ withLocale TPC.toPastCorpus localeUS US_TP.allExamples
     , makeNegativeCorpusTest [This Time] $ withLocale negativeCorpus localeUS []
     ]
   , testGroup "EN_ZA Tests"

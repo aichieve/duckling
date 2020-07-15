@@ -669,6 +669,7 @@ library
                      , Duckling.Time.EN.TT.Corpus
                      , Duckling.Time.EN.TT.Rules
                      , Duckling.Time.EN.US.Corpus
+                     , Duckling.Time.EN.US.ToPastCorpus
                      , Duckling.Time.EN.US.Rules
                      , Duckling.Time.EN.ZA.Corpus
                      , Duckling.Time.EN.ZA.Rules
