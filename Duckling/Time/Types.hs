@@ -37,7 +37,7 @@ import qualified Data.Time.LocalTime.TimeZone.Series as Series
 import Duckling.Resolve
 import Duckling.TimeGrain.Types (Grain)
 import qualified Duckling.TimeGrain.Types as TG
-import Debug.Trace (trace)
+
 data TimeObject = TimeObject
   { start :: Time.UTCTime
   , grain :: Grain
@@ -118,7 +118,7 @@ instance Resolve TimeData where
         ahead:nextAhead:_ | notImmediate && isJust (timeIntersect ahead refTime) -> Just nextAhead
         ahead:_ -> Just ahead
     values <- if timeResolveStrategy == TO_THIS then (Just $ (take 3 past) ++ (take 3 future)) else (Just . take 3 $ if List.null future then past else future)
-    trace (">>----------call resolve(): \nrefTime = " ++ show refTime ++ ", \ntimeResolveStrategy = " ++ show timeResolveStrategy ++ ", \nnotImmediate=" ++ show notImmediate ++ ", \nestimated=" ++ show estimated ++ ", \ndirection=" ++ show direction ++ "\n\npast = " ++ show (take 3 past) ++ "\n\nfuture = " ++ show (take 3 future) ++ "\n<<----------") $ Just $ case (estimated, direction) of
+    Just $ case (estimated, direction) of
       (False, Nothing) -> (TimeValue (timeValue tzSeries value)
         (map (timeValue tzSeries) values) holiday, latent)
       (True, Nothing) -> (TimeValue (timeValueWithApproximate tzSeries value)
