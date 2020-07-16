@@ -109,10 +109,11 @@ instance Resolve TimeData where
   resolve _ Options {withLatent = False} TimeData {latent = True} = Nothing
   resolve context Options{..} TimeData {timePred, latent, notImmediate, direction, holiday, estimated} = do
     value <- case timeResolveStrategy of
-      TO_PAST -> case past of
-        [] -> listToMaybe future
-        ahead:nextAhead:_ | notImmediate && isJust (timeIntersect ahead refTime) -> Just nextAhead
-        ahead:_ -> Just ahead
+      TO_PAST -> case (past, future) of
+        ([], _) -> listToMaybe future
+        (_, ahead:_) | (timeBefore ahead refTime) -> Just ahead
+        (ahead:nextAhead:_, _) | notImmediate && isJust (timeIntersect ahead refTime) -> Just nextAhead
+        (ahead:_, _) -> Just ahead
       _ -> case future of
         [] -> listToMaybe past
         ahead:nextAhead:_ | notImmediate && isJust (timeIntersect ahead refTime) -> Just nextAhead

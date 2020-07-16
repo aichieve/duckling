@@ -102,7 +102,7 @@ allExamples = concat
   , examples (datetimeHoliday (2013, 2, 18, 0, 0, 0) Day "President's Day")
              [ "president day 2013"
              ]
-  , examples (datetimeHoliday (2012, 2, 12, 0, 0, 0) Day "Lincoln's Birthday")
+  , examples (datetimeHoliday (2013, 2, 12, 0, 0, 0) Day "Lincoln's Birthday")
              [ "Lincolns birthday"
              , "Abraham Lincoln's birthday"
              , "Lincoln birthday"
@@ -143,7 +143,7 @@ allExamples = concat
   , examples (datetimeIntervalHoliday ((2012, 8, 31, 18, 0, 0), (2012, 9, 4, 0, 0, 0)) Hour "Labor Day weekend")
              [ "labor day weekend"
              ]
-  , examples (datetimeHoliday (2012, 2, 2, 0, 0, 0) Day "Groundhog Day")
+  , examples (datetimeHoliday (2013, 2, 2, 0, 0, 0) Day "Groundhog Day")
              [ "Groundhog day"
              , "groundhogs day"
              ]

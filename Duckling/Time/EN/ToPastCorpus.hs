@@ -170,12 +170,14 @@ allExamples = concat
              [ "monday"
              , "mon."
 --             , "this monday"
---             , "Monday, Feb 11"
---             , "Mon, February 11"
+             , "Monday, Feb 11"
+             , "Mon, February 11"
+             ]
+  , examples (datetime (2013, 2, 12, 0, 0, 0) Day)
+             [ "tuesday"
              ]
   , examples (datetime (2013, 2, 05, 0, 0, 0) Day)
-             [ "tuesday"
-             , "Tuesday the 5th"
+             [ "Tuesday the 5th"
              , "Tuesday 5th"
              ]
   , examples (datetime (2012, 11, 15, 0, 0, 0) Day)
@@ -264,7 +266,7 @@ allExamples = concat
   , examples (datetime (2014, 3, 1, 0, 0, 0) Month)
              [ "March after next"
              ]
-  , examples (datetime (2008, 2, 10, 0, 0, 0) Day)
+  , examples (datetime (2013, 2, 10, 0, 0, 0) Day)
              [ "Sunday, Feb 10"
              ]
   , examples (datetime (2008, 2, 13, 0, 0, 0) Day)
@@ -905,9 +907,7 @@ allExamples = concat
              ]
   , examples (datetimeHoliday (2013, 2, 12, 0, 0, 0) Day "Shrove Tuesday")
              [ "pancake day 2013"
-             ]
-  , examples (datetimeHoliday (2012, 2, 21, 0, 0, 0) Day "Shrove Tuesday")
-             [ "mardi gras"
+             , "mardi gras"
              ]
   , examples (datetimeHoliday (2013, 3, 17, 0, 0, 0) Day "St Patrick's Day")
              [ "st patrick's day 2013"
@@ -1318,12 +1318,11 @@ allExamples = concat
   , examples (datetime (2013, 2, 12, 23, 0, 0) Hour)
              [ "tonight at 11"
              ]
---  , examples (datetime (2013, 2, 12, 4, 23, 0) Minute)
-    -- yes, the result is in the past, we may need to revisit
---             [ "at 4:23"
---             , "4:23am"
---             , "four twenty-three a m"
---             ]
+  , examples (datetime (2013, 2, 12, 4, 23, 0) Minute)
+             [ "at 4:23"
+             , "4:23am"
+             , "four twenty-three a m"
+             ]
   , examples (datetimeInterval ((2012, 3, 1, 0, 0, 0), (2012, 3, 11, 0, 0, 0)) Day)
              [ "early March"
              ]
