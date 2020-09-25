@@ -246,8 +246,13 @@ allExamples = concat
              ]
   , examples (datetime (2015, 3, 3, 0, 0, 0) Day)
              [ "march 3 2015"
+             , "march 03 2015"
              , "march 3rd 2015"
              , "march third 2015"
+             , "march-3-2015"
+             , "march-03-2015"
+             , "march/3/2015"
+             , "march/03/2015"
              , "3/3/2015"
              , "3/3/15"
              , "2015-3-3"
@@ -281,6 +286,9 @@ allExamples = concat
   , examples (datetime (2015, 4, 14, 0, 0, 0) Day)
              [ "14april 2015"
              , "April 14, 2015"
+             , "April-14-2015"
+             , "April 14 2015"
+             , "April/14/2015"
              , "14th April 15"
              ]
   , examples (datetime (2013, 2, 19, 0, 0, 0) Day)
