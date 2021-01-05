@@ -37,11 +37,32 @@ latentCorpus = (testContext, testOptions {withLatent = True}, xs)
       [ examples (simple Unnamed 5)
                  [ "five"
                  , "5"
-                 , "about 5"
                  ]
       , examples (simple Unnamed 7.2)
                  [ "7.2"
                  , "7.20000"
+                 ]
+      , examples (approximate Unnamed 5)
+                 [ "about 5"
+                 , "around 5"
+                 ]
+      , examples (between Unnamed (9.5, 20))
+                 [ "between 9.5 and 20"
+                 , "from 9.5 to 20"
+                 , "between 9.5 and 20"
+                 , "between 9.5 and twenty"
+                 , "9.5-20"
+                 ]
+      , examples (under Unnamed 7)
+                 [ "under seven"
+                 , "less than 7"
+                 , "lower than 7"
+                 ]
+      , examples (above Unnamed 1.42)
+                 [ "more than 1.42"
+                 , "at least 1.42"
+                 , "over 1.42"
+                 , "above 1.42"
                  ]
       ]
 
@@ -135,7 +156,6 @@ allExamples = concat
              ]
   , examples (simple Unnamed 42)
              [ "42 bucks"
-             , "around 42 bucks"
              , "exactly 42 bucks"
              ]
   , examples (simple KWD 42)
@@ -206,14 +226,15 @@ allExamples = concat
   , examples (between Dollar (10, 20))
              [ "between 10 and 20 dollars"
              , "from 10 dollars to 20 dollars"
-             , "around 10-20 dollars"
              , "between 10 dollars and 20 dollars"
              , "from 10 to 20 dollars"
-             , "about $10-$20"
              , "10-20 dollars"
              ]
   , examples (between Dollar (1.1, 1.3))
              [ "between 1.1 and 1.3 dollars"
+             , "between $1.1 and $1.3"
+             , "1.1 to 1.3 dollars"
+             , "between one dollar 10 cents and one dollar 30 cents"
              , "from 1 point 1 and one point three dollars"
              ]
   , examples (under EUR 7)
@@ -247,5 +268,10 @@ allExamples = concat
               [ "US$4.7 billion"
               , "a US$4.7 billion"
               , "a US$ 4.7 billion"
+              ]
+   , examples (approximate Dollar 200)
+              [ "about 200 dollars"
+              , "about $200"
+              , "around 200 dollars"
               ]
   ]

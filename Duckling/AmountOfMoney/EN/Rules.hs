@@ -245,9 +245,9 @@ ruleIntersectXCents = Rule
 
 rulePrecision :: Rule
 rulePrecision = Rule
-  { name = "about|exactly <amount-of-money>"
+  { name = "exactly <amount-of-money>"
   , pattern =
-    [ regex "exactly|precisely|about|approx(\\.|imately)?|close to|near( to)?|around|almost"
+    [ regex "exactly|precisely"
     , Predicate isMoneyWithValue
     ]
   , prod = \tokens -> case tokens of
@@ -298,10 +298,10 @@ ruleIntervalBetween = Rule
 
 ruleIntervalNumeralDash :: Rule
 ruleIntervalNumeralDash = Rule
-  { name = "<numeral> - <amount-of-money>"
+  { name = "<numeral> -|to <amount-of-money>"
   , pattern =
-    [ Predicate isNatural
-    , regex "-"
+    [ Predicate isPositive
+    , regex "-|to"
     , Predicate isSimpleAmountOfMoney
     ]
   , prod = \tokens -> case tokens of
@@ -338,7 +338,7 @@ ruleIntervalMax = Rule
   { name = "under/less/lower/no more than <amount-of-money>"
   , pattern =
     [ regex "under|(less|lower|not? more) than"
-    , Predicate $ and . sequence [isSimpleAmountOfMoney, not . isCurrencyUnnamed]
+    , Predicate $ isSimpleAmountOfMoney
     ]
   , prod = \tokens -> case tokens of
       (_:
@@ -353,13 +353,29 @@ ruleIntervalMin = Rule
   { name = "over/above/at least/more than <amount-of-money>"
   , pattern =
     [ regex "over|above|at least|more than"
-    , Predicate $ and . sequence [isSimpleAmountOfMoney, not . isCurrencyUnnamed]
+    , Predicate $ isSimpleAmountOfMoney
     ]
   , prod = \tokens -> case tokens of
       (_:
        Token AmountOfMoney AmountOfMoneyData{TAmountOfMoney.value = Just to,
                   TAmountOfMoney.currency = c}:
        _) -> Just . Token AmountOfMoney . withMin to $ currencyOnly c
+      _ -> Nothing
+  }
+
+
+ruleApproximate :: Rule
+ruleApproximate = Rule
+  { name = "about <amount-of-money>"
+  , pattern =
+    [ regex "about|approx(\\.|imately)?|close to|near( to)?|around|almost"
+    , Predicate isSimpleAmountOfMoney
+    ]
+  , prod = \case
+      (Token RegexMatch (GroupMatch (match:_)):
+       Token AmountOfMoney AmountOfMoneyData{TAmountOfMoney.value = Just to,
+                  TAmountOfMoney.currency = c}:
+       _) -> Just . Token AmountOfMoney . withApproximate to $ currencyOnly c
       _ -> Nothing
   }
 
@@ -389,4 +405,5 @@ rules =
   , rulePrecision
   , ruleRinggit
   , ruleRiyals
+  , ruleApproximate
   ]

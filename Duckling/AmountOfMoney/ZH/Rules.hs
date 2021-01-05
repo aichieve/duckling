@@ -329,7 +329,6 @@ rules =
   , ruleIntervalBound
   , ruleIntervalBound2
   , rulePrecision
---  , rulePrecision2
   , ruleApproximate
   , ruleApproximate2
   ]
